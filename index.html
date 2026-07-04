@@ -314,6 +314,7 @@ const EXERCISES = [
   },
 ];
 const REST_BETWEEN_SERIES = 30;
+const PREP_SECS = 5;
 
 /* ================================================================
    Estado
@@ -466,8 +467,9 @@ function toggleSerie(exId, slot, idx){
 let sessState = null;
 function startSession(exId, slot){
   const ex = EXERCISES.find(e=>e.id===exId);
-  sessState = { ex, slot, serie:1, rep:1, phase:0, secs:ex.phases[0].secs, paused:false, mode:"work" };
+  sessState = { ex, slot, serie:1, rep:1, phase:0, secs:PREP_SECS, paused:false, mode:"prep" };
   $("#sess").classList.add("show");
+  buzz(90);
   updateSessUI();
   sessTick();
 }
@@ -477,6 +479,11 @@ function sessTick(){
   sessTimer = setInterval(()=>{
     const st = sessState;
     if (!st || st.paused) return;
+    if (st.mode==="prep"){
+      if (st.secs > 1){ st.secs--; buzz(90); updateSessUI(); return; }
+      advanceSession();
+      return;
+    }
     if (st.secs > 1){
       st.secs--;
       if (st.secs<=3) beep(660,0.07,0.05);
@@ -495,6 +502,11 @@ function phasesForRep(ex, rep){
 }
 function advanceSession(){
   const st = sessState, ex = st.ex;
+  if (st.mode==="prep"){
+    // fin de la cuenta atrás de preparación → arranca la primera serie
+    st.mode="work"; st.serie=1; st.rep=1; st.phase=0; st.secs=ex.phases[0].secs;
+    beep(980,0.16); buzz(220); updateSessUI(); return;
+  }
   if (st.mode==="between"){
     // fin del descanso entre series
     st.mode="work"; st.serie++; st.rep=1; st.phase=0; st.secs=ex.phases[0].secs;
@@ -522,6 +534,16 @@ function updateSessUI(){
   const ex = st.ex;
   const el = $("#sess");
   el.classList.remove("rest","between");
+  if (st.mode==="prep"){
+    $("#sessPhase").textContent = "PREPARADOS";
+    $("#sessSub").textContent = "Colócate para empezar";
+    $("#sessMeta").innerHTML = `Serie 1 / ${ex.series}`;
+    $("#sessSkip").classList.add("hidden");
+    $("#sessBar").style.width = ((PREP_SECS-st.secs)/PREP_SECS*100)+"%";
+    $("#sessCount").textContent = st.secs;
+    $("#sessPause").textContent = st.paused ? "▶ Continuar" : "❚❚ Pausa";
+    return;
+  }
   if (st.mode==="between"){
     el.classList.add("between");
     $("#sessPhase").textContent = "DESCANSO";
