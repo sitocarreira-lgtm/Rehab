@@ -98,6 +98,7 @@ button{font-family:inherit;}
 .session.show{display:flex;}
 .session.rest{background:#123A4A;}
 .session.between{background:#3D3A2E;}
+.session.prep{background:#E07B39;}
 .sess-top{display:flex;align-items:center;padding:18px 18px 0;}
 .sess-exit{background:rgba(255,255,255,.14);border:none;color:#fff;border-radius:10px;padding:9px 14px;font-weight:700;font-size:13px;cursor:pointer;}
 .sess-meta{margin-left:auto;font-size:13px;font-weight:700;opacity:.85;text-align:right;line-height:1.4;}
@@ -533,8 +534,9 @@ function updateSessUI(){
   const st = sessState; if (!st) return;
   const ex = st.ex;
   const el = $("#sess");
-  el.classList.remove("rest","between");
+  el.classList.remove("rest","between","prep");
   if (st.mode==="prep"){
+    el.classList.add("prep");
     $("#sessPhase").textContent = "PREPARADOS";
     $("#sessSub").textContent = "Colócate para empezar";
     $("#sessMeta").innerHTML = `Serie 1 / ${ex.series}`;

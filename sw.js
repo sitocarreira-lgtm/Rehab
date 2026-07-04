@@ -1,5 +1,5 @@
 // Service worker mínimo para que la app sea instalable y funcione sin conexión
-const CACHE = 'rehab-v1';
+const CACHE = 'rehab-v2';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
