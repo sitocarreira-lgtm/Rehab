@@ -380,6 +380,19 @@ function beep(freq=880,dur=0.12,vol=0.08){
 }
 function buzz(ms=120){ try{ navigator.vibrate && navigator.vibrate(ms); }catch(e){} }
 
+/* Mantener la pantalla encendida durante la sesión guiada */
+let wakeLock = null;
+async function keepAwake(){
+  try{ if ('wakeLock' in navigator){ wakeLock = await navigator.wakeLock.request('screen'); } }catch(e){}
+}
+async function letSleep(){
+  try{ if (wakeLock){ await wakeLock.release(); } }catch(e){}
+  wakeLock = null;
+}
+document.addEventListener('visibilitychange', ()=>{
+  if (document.visibilityState === 'visible' && sessState){ keepAwake(); }
+});
+
 async function saveAll(){ await store.set(K.log,log); await store.set(K.angles,angles); await store.set(K.cfg,cfg); await store.set(K.med,medLog); }
 
 /* Migración desde formatos antiguos (número o array de horas) */
@@ -471,6 +484,7 @@ function startSession(exId, slot){
   sessState = { ex, slot, serie:1, rep:1, phase:0, secs:PREP_SECS, paused:false, mode:"prep" };
   $("#sess").classList.add("show");
   buzz(90);
+  keepAwake();
   updateSessUI();
   sessTick();
 }
@@ -578,12 +592,14 @@ function finishSession(){
   beep(1180,0.3,0.1); buzz(400);
   sessState = null;
   $("#sess").classList.remove("show");
+  letSleep();
   render();
 }
 function exitSession(){
   clearInterval(sessTimer);
   sessState = null;
   $("#sess").classList.remove("show");
+  letSleep();
 }
 
 /* ---------------- CALENDARIO ---------------- */
