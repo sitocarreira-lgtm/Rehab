@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FBF9F5">
+<title>Rehab Rodilla</title>
+<style>
+:root{
+  --bone:#FBF9F5; --card:#FFFFFF; --ink:#16302A; --muted:#69796F;
+  --pine:#2E7D5B; --pine-deep:#1F5A40; --teal:#0E9C9C; --teal-soft:#E3F4F3;
+  --amber:#DD8F2B; --ember:#D0563A; --line:#E7EAE5; --pine-soft:#E6F1EB;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
+html,body{background:var(--bone);}
+body{
+  font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color:var(--ink);max-width:520px;margin:0 auto;min-height:100vh;
+  padding-bottom:calc(78px + env(safe-area-inset-bottom));
+}
+.tnum{font-variant-numeric:tabular-nums;}
+button{font-family:inherit;}
+.head{
+  padding:20px 20px 14px;display:flex;align-items:center;gap:12px;
+  border-bottom:1px solid var(--line);position:sticky;top:0;
+  background:rgba(251,249,245,.92);backdrop-filter:blur(8px);z-index:5;
+}
+.mark{width:34px;height:34px;flex:none;}
+.brand{font-weight:800;font-size:19px;letter-spacing:-.02em;line-height:1;}
+.brand small{display:block;font-weight:600;font-size:11px;color:var(--muted);margin-top:3px;}
+.wk{margin-left:auto;text-align:right;}
+.wk b{display:block;font-size:22px;font-weight:800;line-height:1;}
+.wk span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+.wrap{padding:18px 16px 8px;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px;}
+.sect{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin:6px 4px 10px;}
+.exhead{display:flex;align-items:center;gap:10px;}
+.exname{font-weight:700;font-size:15.5px;}
+.exdetail{font-size:11px;color:var(--muted);margin-left:auto;white-space:nowrap;text-align:right;}
+.extip{font-size:12.5px;color:var(--muted);line-height:1.45;margin:6px 0 12px;}
+.sessrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px dashed var(--line);}
+.sessrow:first-of-type{border-top:none;}
+.playbtn{
+  width:44px;height:44px;border-radius:50%;border:none;background:var(--pine);
+  color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;
+  box-shadow:0 2px 8px rgba(46,125,91,.3);
+}
+.playbtn:active{transform:scale(.94);}
+.playbtn svg{width:18px;height:18px;margin-left:2px;}
+.playbtn.done{background:var(--pine-soft);color:var(--pine-deep);box-shadow:none;}
+.sessinfo{flex:1;}
+.sesslabel{font-size:12px;font-weight:700;display:flex;gap:8px;align-items:baseline;}
+.sesslabel .time{color:var(--pine-deep);font-size:11px;font-weight:800;}
+.seriedots{display:flex;gap:6px;margin-top:5px;}
+.sdot{
+  flex:1;height:26px;border-radius:8px;border:1.5px solid var(--line);background:var(--bone);
+  font-size:11px;font-weight:800;color:var(--muted);cursor:pointer;
+}
+.sdot.on{background:var(--pine);border-color:var(--pine);color:#fff;}
+.sdot:active{transform:scale(.92);}
+.hint{font-size:12.5px;color:var(--muted);line-height:1.5;margin:10px 2px;}
+.hint b{color:var(--ink);}
+/* calendario */
+.calhead{display:flex;align-items:center;margin-bottom:12px;}
+.calhead b{flex:1;text-align:center;font-size:15px;font-weight:800;text-transform:capitalize;}
+.calnav{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--bone);font-size:16px;cursor:pointer;color:var(--ink);}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+.calgrid .dow{text-align:center;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;padding-bottom:4px;}
+.calcell{
+  aspect-ratio:1;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;background:var(--bone);border:1px solid transparent;cursor:pointer;gap:2px;
+}
+.calcell.out{visibility:hidden;}
+.calcell.full{background:var(--pine);color:#fff;}
+.calcell.part{background:var(--pine-soft);color:var(--pine-deep);}
+.calcell.today{border-color:var(--teal);border-width:2px;}
+.calcell.sel{box-shadow:0 0 0 3px var(--amber);}
+.calcell .mini{display:flex;gap:2px;}
+.calcell .mini i{width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.3;}
+.calcell .mini i.on{opacity:1;}
+.callegend{display:flex;gap:12px;margin-top:12px;font-size:11px;color:var(--muted);flex-wrap:wrap;}
+.callegend i{width:13px;height:13px;border-radius:4px;display:inline-block;margin-right:4px;vertical-align:-2px;}
+.dayrow{padding:11px 0;border-bottom:1px solid var(--line);}
+.dayrow:last-child{border-bottom:none;}
+.dayrow-top{display:flex;align-items:baseline;gap:8px;}
+.dayrow-name{font-weight:700;font-size:13.5px;flex:1;}
+.dayrow-count{font-size:12px;font-weight:800;color:var(--pine-deep);}
+.chips{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap;}
+.chip{font-size:11px;font-weight:700;padding:5px 9px;border-radius:8px;background:var(--pine-soft);color:var(--pine-deep);}
+.chip b{font-weight:900;}
+.chip.off{background:var(--bone);color:var(--muted);border:1px dashed var(--line);font-weight:600;}
+.streak{text-align:center;}
+.streak .n{font-size:40px;font-weight:800;}
+.streak .l{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;}
+/* sesión guiada */
+.session{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;color:#fff;max-width:520px;margin:0 auto;background:#1F5A40;}
+.session.show{display:flex;}
+.session.rest{background:#123A4A;}
+.session.between{background:#3D3A2E;}
+.sess-top{display:flex;align-items:center;padding:18px 18px 0;}
+.sess-exit{background:rgba(255,255,255,.14);border:none;color:#fff;border-radius:10px;padding:9px 14px;font-weight:700;font-size:13px;cursor:pointer;}
+.sess-meta{margin-left:auto;font-size:13px;font-weight:700;opacity:.85;text-align:right;line-height:1.4;}
+.sess-mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 24px;}
+.sess-phase{font-size:32px;font-weight:900;margin-bottom:6px;}
+.sess-sub{font-size:15px;opacity:.8;margin-bottom:26px;line-height:1.4;}
+.sess-count{font-size:110px;font-weight:900;line-height:.9;letter-spacing:-.05em;}
+.sess-bar{height:6px;background:rgba(255,255,255,.18);border-radius:4px;margin:26px auto 0;width:100%;max-width:280px;overflow:hidden;}
+.sess-bar i{display:block;height:100%;background:#fff;border-radius:4px;transition:width .95s linear;width:0;}
+.sess-bottom{padding:0 18px calc(30px + env(safe-area-inset-bottom));display:flex;gap:10px;}
+.sess-bottom button{flex:1;padding:15px;border-radius:13px;border:none;font-weight:800;font-size:15px;cursor:pointer;background:rgba(255,255,255,.16);color:#fff;}
+/* ángulo */
+.bigangle{display:flex;align-items:flex-end;gap:14px;margin:2px 0 12px;}
+.bigangle .val{font-size:56px;font-weight:800;line-height:.9;}
+.bigangle .deg{font-size:26px;font-weight:700;color:var(--teal);}
+.bigangle .goal{margin-left:auto;text-align:right;font-size:12px;color:var(--muted);line-height:1.4;}
+.bigangle .goal b{display:block;font-size:20px;color:var(--ink);font-weight:800;}
+.modeswitch{display:flex;background:var(--bone);border:1px solid var(--line);border-radius:11px;padding:3px;margin-bottom:14px;}
+.modeswitch button{flex:1;padding:9px;border:none;border-radius:8px;background:none;font-weight:700;font-size:13px;color:var(--muted);cursor:pointer;}
+.modeswitch button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.slider{width:100%;margin:16px 0 6px;accent-color:var(--pine);height:34px;}
+.sliderlabels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-weight:600;margin-bottom:10px;}
+#gonioCanvas{width:100%;height:auto;display:none;border-radius:12px;background:#eee;touch-action:none;cursor:crosshair;}
+.pts{display:flex;gap:8px;margin:10px 0;}
+.pt{flex:1;text-align:center;font-size:11px;padding:8px 4px;border-radius:10px;border:1px solid var(--line);color:var(--muted);font-weight:600;}
+.pt.done{border-color:var(--teal);background:var(--teal-soft);color:var(--pine-deep);}
+.pt.next{border-color:var(--teal);color:var(--teal);box-shadow:0 0 0 3px var(--teal-soft);}
+.row{display:flex;gap:10px;}
+.btn{flex:1;padding:13px;border-radius:12px;border:none;font-weight:700;font-size:14px;cursor:pointer;background:var(--pine);color:#fff;}
+.btn:active{transform:scale(.98);}
+.btn.ghost{background:var(--bone);color:var(--ink);border:1px solid var(--line);}
+.btn:disabled{opacity:.4;}
+.filelabel{display:block;text-align:center;padding:30px 16px;border:2px dashed var(--line);border-radius:14px;color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;}
+.filelabel b{color:var(--pine);}
+#chartCanvas{width:100%;height:210px;display:block;}
+/* avisos */
+.rem{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line);}
+.rem:last-child{border-bottom:none;}
+.rem input[type=time]{font-size:18px;font-weight:800;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-family:inherit;background:var(--bone);color:var(--ink);}
+.rem span{font-size:13px;color:var(--muted);}
+.rem .del{margin-left:auto;background:none;border:none;color:var(--ember);font-size:13px;font-weight:600;cursor:pointer;}
+.note{font-size:12.5px;color:var(--muted);line-height:1.55;background:var(--pine-soft);border-radius:12px;padding:13px 14px;margin-top:10px;}
+.note.warn{background:#FBEDE8;color:#8a3d2a;}
+.cfgrow{display:flex;align-items:center;gap:10px;margin-top:6px;}
+.cfgrow label{font-size:13px;color:var(--muted);flex:1;}
+.cfgrow input{font-family:inherit;border:1px solid var(--line);border-radius:10px;padding:9px 10px;font-size:14px;background:var(--bone);color:var(--ink);}
+.tabs{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;
+  display:flex;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
+  border-top:1px solid var(--line);z-index:10;padding-bottom:env(safe-area-inset-bottom);
+}
+.tab{flex:1;padding:11px 4px 13px;border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:11px;font-weight:600;}
+.tab.on{color:var(--pine);}
+.tab svg{width:23px;height:23px;}
+.empty{text-align:center;color:var(--muted);font-size:13px;padding:26px 10px;line-height:1.5;}
+/* fármacos */
+.selfield{width:100%;font-family:inherit;font-size:15px;border:1px solid var(--line);border-radius:11px;padding:12px;background:var(--bone);color:var(--ink);margin-bottom:8px;}
+.setup-q{font-weight:700;font-size:15px;margin-bottom:12px;}
+.med-title{font-weight:800;font-size:16px;margin-bottom:12px;}
+.med-dose{font-size:13px;color:var(--muted);font-weight:600;}
+.segside{display:flex;gap:8px;margin-bottom:10px;}
+.segside button{flex:1;padding:11px;border-radius:11px;border:1.5px solid var(--line);background:var(--bone);font-weight:700;color:var(--muted);cursor:pointer;font-size:13px;}
+.segside button.on{border-color:var(--pine);background:var(--pine-soft);color:var(--pine-deep);}
+.ac-side{border-radius:14px;padding:18px 16px;text-align:center;margin-bottom:12px;}
+.ac-side.izq{background:var(--teal-soft);}
+.ac-side.der{background:#FBF1E1;}
+.ac-side-label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);}
+.ac-side-big{display:block;font-size:30px;font-weight:900;margin-top:6px;letter-spacing:-.01em;}
+.ac-side.izq .ac-side-big{color:var(--pine-deep);}
+.ac-side.der .ac-side-big{color:var(--amber);}
+.ac-done{background:var(--pine-soft);color:var(--pine-deep);border-radius:12px;padding:14px;font-weight:700;font-size:14px;margin-bottom:10px;line-height:1.4;}
+.med-row{padding:12px 0;border-bottom:1px solid var(--line);}
+.med-row:last-of-type{border-bottom:none;}
+.med-row-top{display:flex;gap:10px;align-items:flex-start;}
+.med-row-top>.mi{flex:1;}
+.med-row-top b{font-size:14.5px;}
+.med-note{font-size:12px;color:var(--muted);margin-top:3px;}
+.med-take{flex:none;padding:10px 16px;border-radius:11px;border:none;background:var(--pine);color:#fff;font-weight:800;font-size:14px;cursor:pointer;}
+.med-take:active{transform:scale(.96);}
+.med-del{background:none;border:none;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;padding:4px 0 0;}
+.chip-undo{background:none;border:none;color:var(--ember);font-size:11px;font-weight:700;cursor:pointer;align-self:center;}
+.addmed{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);}
+/* onboarding */
+.onboard{
+  position:fixed;inset:0;z-index:80;background:var(--bone);max-width:520px;margin:0 auto;
+  display:none;flex-direction:column;justify-content:center;padding:32px 26px calc(40px + env(safe-area-inset-bottom));
+}
+.onboard.show{display:flex;}
+.onboard .mark{width:56px;height:56px;margin-bottom:22px;}
+.onboard h1{font-size:26px;font-weight:800;letter-spacing:-.02em;margin-bottom:8px;}
+.onboard p{font-size:14.5px;color:var(--muted);line-height:1.55;margin-bottom:26px;}
+.onboard label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:8px;}
+.onboard input[type=date]{
+  width:100%;font-family:inherit;font-size:18px;font-weight:800;color:var(--ink);
+  border:1px solid var(--line);border-radius:13px;padding:14px;background:var(--card);margin-bottom:10px;
+}
+.onboard .ob-info{font-size:13px;color:var(--pine-deep);background:var(--pine-soft);border-radius:12px;padding:12px 14px;margin-bottom:22px;min-height:44px;line-height:1.45;}
+.onboard .ob-btn{width:100%;padding:16px;border-radius:14px;border:none;background:var(--pine);color:#fff;font-weight:800;font-size:16px;cursor:pointer;}
+.onboard .ob-btn:disabled{opacity:.4;}
+.hidden{display:none!important;}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+
+<!-- Pantalla de bienvenida -->
+<div class="onboard" id="onboard">
+  <svg class="mark" viewBox="0 0 40 40" fill="none">
+    <path d="M6 32h28" stroke="#16302A" stroke-width="3" stroke-linecap="round"/>
+    <path d="M6 32 30 10" stroke="#2E7D5B" stroke-width="3" stroke-linecap="round"/>
+    <path d="M6 32a20 20 0 0 0 11-6" stroke="#0E9C9C" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  </svg>
+  <h1>Tu recuperación</h1>
+  <p>Para calcular tu semana de rehabilitación y los objetivos de flexión, dime la fecha en la que te operaron.</p>
+  <label for="obDate">Fecha de la operación</label>
+  <input type="date" id="obDate">
+  <div class="ob-info" id="obInfo">Elige la fecha para empezar.</div>
+  <button class="ob-btn" id="obStart" disabled>Empezar</button>
+</div>
+
+<div class="head">
+  <svg class="mark" viewBox="0 0 40 40" fill="none">
+    <path d="M6 32h28" stroke="#16302A" stroke-width="3" stroke-linecap="round"/>
+    <path d="M6 32 30 10" stroke="#2E7D5B" stroke-width="3" stroke-linecap="round"/>
+    <path d="M6 32a20 20 0 0 0 11-6" stroke="#0E9C9C" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  </svg>
+  <div class="brand">Rehab<small>Rodilla izq · LCA + Lemaire</small></div>
+  <div class="wk"><b class="tnum" id="wkNum">S1</b><span>semana</span></div>
+</div>
+
+<div class="wrap" id="view"></div>
+
+<!-- Sesión guiada -->
+<div class="session" id="sess">
+  <div class="sess-top">
+    <button class="sess-exit" id="sessExit">Salir</button>
+    <div class="sess-meta tnum" id="sessMeta"></div>
+  </div>
+  <div class="sess-mid">
+    <div class="sess-phase" id="sessPhase"></div>
+    <div class="sess-sub" id="sessSub"></div>
+    <div class="sess-count tnum" id="sessCount"></div>
+    <div class="sess-bar"><i id="sessBar"></i></div>
+  </div>
+  <div class="sess-bottom">
+    <button id="sessPause">❚❚ Pausa</button>
+    <button id="sessSkip" class="hidden">Saltar descanso ›</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab on" data-tab="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Hoy</button>
+  <button class="tab" data-tab="cal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Calendario</button>
+  <button class="tab" data-tab="angle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"/><path d="M4 20 18 6"/><path d="M4 20a10 10 0 0 0 6-4"/></svg>Ángulo</button>
+  <button class="tab" data-tab="meds"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20.5 3.5 13.5a5 5 0 0 1 7-7l7 7a5 5 0 0 1-7 7Z"/><path d="M8.5 8.5l7 7"/></svg>Fármacos</button>
+  <button class="tab" data-tab="avisos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>Avisos</button>
+</div>
+
+<script>
+/* ================================================================
+   Almacenamiento: window.storage (artifact) → localStorage → memoria
+================================================================ */
+const mem = new Map();
+const store = {
+  async get(k){
+    try{
+      if (window.storage) { const r = await window.storage.get(k); return r ? JSON.parse(r.value) : null; }
+    }catch(e){}
+    try{ const v = localStorage.getItem(k); if (v != null) return JSON.parse(v); }catch(e){}
+    return mem.has(k) ? JSON.parse(mem.get(k)) : null;
+  },
+  async set(k,v){
+    const s = JSON.stringify(v);
+    try{ if (window.storage) { await window.storage.set(k,s); return; } }catch(e){}
+    try{ localStorage.setItem(k,s); return; }catch(e){}
+    mem.set(k,s);
+  }
+};
+
+/* ================================================================
+   Config de ejercicios: sesiones/día × series × reps
+================================================================ */
+const EXERCISES = [
+  {
+    id:"quad", name:"Isométricos de cuádriceps", short:"Isométricos",
+    sessions:3, series:3, reps:10,
+    tip:"Aprieta como si clavaras la rodilla en la cama.",
+    phases:[
+      {label:"CONTRAE", sub:"Aprieta el cuádriceps fuerte", secs:6, tone:"work"},
+      {label:"RELAJA", sub:"Suelta del todo", secs:4, tone:"rest"},
+    ],
+  },
+  {
+    id:"slr", name:"Elevaciones de pierna recta", short:"Elevaciones",
+    sessions:3, series:3, reps:10,
+    tip:"Bloquea la rodilla ANTES de subir. Si cede, hoy solo isométricos.",
+    phases:[
+      {label:"APRIETA Y SUBE", sub:"Rodilla bloqueada, sube la pierna", secs:3, tone:"work"},
+      {label:"AGUANTA ARRIBA", sub:"Mantén la pierna recta", secs:3, tone:"work"},
+      {label:"BAJA DESPACIO", sub:"Controla la bajada", secs:3, tone:"work"},
+      {label:"DESCANSA", sub:"Suelta", secs:3, tone:"rest"},
+    ],
+  },
+  {
+    id:"heel", name:"Deslizamiento de talón", short:"Deslizamientos",
+    sessions:2, series:3, reps:10,
+    tip:"Talón pegado a la cama. Tirantez sí, dolor agudo no.",
+    phases:[
+      {label:"DOBLA", sub:"Desliza el talón hacia ti", secs:5, tone:"work"},
+      {label:"AGUANTA", sub:"En el punto de tirantez cómoda", secs:4, tone:"work"},
+      {label:"ESTIRA", sub:"Vuelve a extender despacio", secs:5, tone:"move"},
+      {label:"DESCANSA", sub:"Pierna relajada", secs:2, tone:"rest"},
+    ],
+  },
+];
+const REST_BETWEEN_SERIES = 30;
+
+/* ================================================================
+   Estado
+================================================================ */
+let cfg = { surgery:null, reminders:["08:00","14:00","21:00"], anticoag:null, meds:[] };
+let acStartSide = "izq";
+/* log[fecha][exId] = array de sesiones: [{t:"HH:MM", series:3}] */
+let log = {};
+let angles = [];
+let medLog = {};   /* medLog[fecha] = { ac:[{t,side}], meds:{ medId:[{t}] } } */
+let tab = "today";
+let calView = null;   // {y,m}
+let calSel = null;    // fecha seleccionada
+let angleMode = "photo";
+let manualVal = 90;
+let gonioPts = [];
+let gonioImg = null;
+let gonioFlex = null;
+let gonioDrag = -1;
+let detectMsg = "";
+let poseDetector = null;
+
+const K = { log:"rehab:v3log", angles:"rehab:angles", cfg:"rehab:cfg", med:"rehab:medlog" };
+
+/* ================================================================
+   Utilidades
+================================================================ */
+const $ = (s)=>document.querySelector(s);
+const fmtKey = (d)=>{
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+};
+const nowHM = ()=>{ const d=new Date(); return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); };
+const todayKey = ()=>fmtKey(new Date());
+const shortDate = (iso)=>{ const p=iso.split("-"); return p[2]+"/"+p[1]; };
+const weekNow = ()=>{
+  if (!cfg.surgery) return 1;
+  const a = new Date(cfg.surgery+"T00:00:00");
+  const b = new Date(todayKey()+"T00:00:00");
+  return Math.floor(Math.max(0,Math.round((b-a)/86400000))/7)+1;
+};
+const daysSinceOp = ()=>{
+  if (!cfg.surgery) return null;
+  const a = new Date(cfg.surgery+"T00:00:00");
+  const b = new Date(todayKey()+"T00:00:00");
+  return Math.max(0, Math.round((b-a)/86400000));
+};
+const goalNow = ()=>{ const w=weekNow(); return w<=2?90:w<=4?105:w<=6?120:135; };
+const sessOf = (rec, id)=> (rec && rec[id]) ? rec[id] : [];
+const esc = (s)=>String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+let _actx=null;
+function beep(freq=880,dur=0.12,vol=0.08){
+  try{
+    _actx = _actx || new (window.AudioContext||window.webkitAudioContext)();
+    if(_actx.state==="suspended") _actx.resume();
+    const o=_actx.createOscillator(), g=_actx.createGain();
+    o.frequency.value=freq; o.connect(g); g.connect(_actx.destination);
+    g.gain.setValueAtTime(vol,_actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001,_actx.currentTime+dur);
+    o.start(); o.stop(_actx.currentTime+dur);
+  }catch(e){}
+}
+function buzz(ms=120){ try{ navigator.vibrate && navigator.vibrate(ms); }catch(e){} }
+
+async function saveAll(){ await store.set(K.log,log); await store.set(K.angles,angles); await store.set(K.cfg,cfg); await store.set(K.med,medLog); }
+
+/* Migración desde formatos antiguos (número o array de horas) */
+function migrate(l){
+  const out = {};
+  for (const date in l){
+    out[date] = {};
+    for (const id in l[date]){
+      const v = l[date][id];
+      if (Array.isArray(v) && v.length && typeof v[0]==="object") out[date][id]=v;
+      else if (Array.isArray(v)) out[date][id]=v.map(t=>({t:(t==="—"?"":t), series:EXERCISES.find(e=>e.id===id)?.series||3}));
+      else if (typeof v==="number") out[date][id]=Array.from({length:v}).map(()=>({t:"", series:EXERCISES.find(e=>e.id===id)?.series||3}));
+    }
+  }
+  return out;
+}
+
+/* ================================================================
+   Vistas
+================================================================ */
+function render(){
+  $("#wkNum").textContent = "S"+weekNow();
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on", b.dataset.tab===tab));
+  if (tab==="today") renderToday();
+  else if (tab==="cal") renderCal();
+  else if (tab==="angle") renderAngle();
+  else if (tab==="meds") renderMeds();
+  else renderAvisos();
+}
+
+/* ---------------- HOY ---------------- */
+function renderToday(){
+  const rec = log[todayKey()] || {};
+  let html = '<div class="sect">Hoy · pulsa ▶ para una sesión guiada (3 series de 10)</div>';
+  for (const e of EXERCISES){
+    const sess = sessOf(rec, e.id);
+    html += `<div class="card">
+      <div class="exhead"><span class="exname">${e.name}</span>
+      <span class="exdetail">${e.sessions}×/día · ${e.series} series · ${e.reps} reps</span></div>
+      <div class="extip">${e.tip}</div>`;
+    for (let s=0; s<e.sessions; s++){
+      const done = sess[s];
+      html += `<div class="sessrow">
+        <button class="playbtn ${done?"done":""}" data-play="${e.id}" data-slot="${s}" aria-label="Sesión ${s+1}">
+          ${done
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
+            : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'}
+        </button>
+        <div class="sessinfo">
+          <div class="sesslabel">Sesión ${s+1}
+            ${done && done.t ? `<span class="time tnum">${done.t} h</span>` : ""}
+          </div>
+          <div class="seriedots">`;
+      for (let x=0; x<e.series; x++){
+        const on = done && x < done.series;
+        html += `<button class="sdot ${on?"on":""}" data-serie="${e.id}" data-slot="${s}" data-idx="${x}">${on?"✓":"S"+(x+1)}</button>`;
+      }
+      html += `</div></div></div>`;
+    }
+    html += `</div>`;
+  }
+  html += `<div class="hint">Toca las series (S1·S2·S3) para marcarlas o desmarcarlas a mano; la hora se apunta sola. El ▶ te guía la sesión entera.</div>`;
+  $("#view").innerHTML = html;
+}
+
+/* toca una serie: marcar hasta ahí o desmarcar desde ahí */
+function toggleSerie(exId, slot, idx){
+  const e = EXERCISES.find(x=>x.id===exId);
+  const date = todayKey();
+  log[date] = log[date] || {};
+  const arr = (log[date][exId] || []).slice();
+  while (arr.length <= slot) arr.push(null);
+  const cur = arr[slot];
+  const curSeries = cur ? cur.series : 0;
+  let next;
+  if (idx < curSeries) next = idx;            // desmarcar desde esa serie
+  else next = idx + 1;                        // marcar hasta esa serie
+  arr[slot] = next===0 ? null : { t: (cur && cur.t) ? cur.t : nowHM(), series: next };
+  // limpia nulls colgantes al final
+  while (arr.length && arr[arr.length-1]===null) arr.pop();
+  log[date][exId] = arr;
+  saveAll(); render();
+}
+
+/* ---------------- SESIÓN GUIADA ---------------- */
+let sessState = null;
+function startSession(exId, slot){
+  const ex = EXERCISES.find(e=>e.id===exId);
+  sessState = { ex, slot, serie:1, rep:1, phase:0, secs:ex.phases[0].secs, paused:false, mode:"work" };
+  $("#sess").classList.add("show");
+  updateSessUI();
+  sessTick();
+}
+let sessTimer = null;
+function sessTick(){
+  clearInterval(sessTimer);
+  sessTimer = setInterval(()=>{
+    const st = sessState;
+    if (!st || st.paused) return;
+    if (st.secs > 1){
+      st.secs--;
+      if (st.secs<=3) beep(660,0.07,0.05);
+      updateSessUI();
+      return;
+    }
+    advanceSession();
+  },1000);
+}
+/* ¿es la última repetición de la serie? entonces se saltan las fases finales de descanso */
+function phasesForRep(ex, rep){
+  if (rep < ex.reps) return ex.phases;
+  const ph = ex.phases.slice();
+  while (ph.length && ph[ph.length-1].tone==="rest") ph.pop();
+  return ph;
+}
+function advanceSession(){
+  const st = sessState, ex = st.ex;
+  if (st.mode==="between"){
+    // fin del descanso entre series
+    st.mode="work"; st.serie++; st.rep=1; st.phase=0; st.secs=ex.phases[0].secs;
+    beep(980,0.16); buzz(200); updateSessUI(); return;
+  }
+  const ph = phasesForRep(ex, st.rep);
+  if (st.phase+1 < ph.length){
+    st.phase++; st.secs = ph[st.phase].secs;
+    const p = ph[st.phase];
+    beep(p.tone==="rest"?520:980, 0.14); buzz(p.tone==="rest"?90:180);
+    updateSessUI(); return;
+  }
+  if (st.rep < ex.reps){
+    st.rep++; st.phase=0; st.secs=ex.phases[0].secs;
+    beep(980,0.16); buzz(180); updateSessUI(); return;
+  }
+  if (st.serie < ex.series){
+    st.mode="between"; st.secs = REST_BETWEEN_SERIES;
+    beep(520,0.25,0.09); buzz(250); updateSessUI(); return;
+  }
+  finishSession();
+}
+function updateSessUI(){
+  const st = sessState; if (!st) return;
+  const ex = st.ex;
+  const el = $("#sess");
+  el.classList.remove("rest","between");
+  if (st.mode==="between"){
+    el.classList.add("between");
+    $("#sessPhase").textContent = "DESCANSO";
+    $("#sessSub").textContent = "Entre series · respira";
+    $("#sessMeta").innerHTML = `Serie ${st.serie} / ${ex.series} hecha`;
+    $("#sessSkip").classList.remove("hidden");
+    $("#sessBar").style.width = ((REST_BETWEEN_SERIES-st.secs)/REST_BETWEEN_SERIES*100)+"%";
+  } else {
+    const ph = phasesForRep(ex, st.rep)[st.phase];
+    if (ph.tone==="rest") el.classList.add("rest");
+    $("#sessPhase").textContent = ph.label;
+    $("#sessSub").textContent = ph.sub;
+    $("#sessMeta").innerHTML = `Serie ${st.serie}/${ex.series}<br>Rep ${st.rep}/${ex.reps}`;
+    $("#sessSkip").classList.add("hidden");
+    $("#sessBar").style.width = ((ph.secs-st.secs)/ph.secs*100)+"%";
+  }
+  $("#sessCount").textContent = st.secs;
+  $("#sessPause").textContent = st.paused ? "▶ Continuar" : "❚❚ Pausa";
+}
+function finishSession(){
+  const st = sessState;
+  clearInterval(sessTimer);
+  const date = todayKey();
+  log[date] = log[date] || {};
+  const arr = (log[date][st.ex.id] || []).slice();
+  while (arr.length <= st.slot) arr.push(null);
+  arr[st.slot] = { t: nowHM(), series: st.ex.series };
+  log[date][st.ex.id] = arr;
+  saveAll();
+  beep(1180,0.3,0.1); buzz(400);
+  sessState = null;
+  $("#sess").classList.remove("show");
+  render();
+}
+function exitSession(){
+  clearInterval(sessTimer);
+  sessState = null;
+  $("#sess").classList.remove("show");
+}
+
+/* ---------------- CALENDARIO ---------------- */
+function dayStats(key){
+  const rec = log[key] || {};
+  let done=0, total=0, perEx=[];
+  for (const e of EXERCISES){
+    const sess = sessOf(rec, e.id);
+    let d=0;
+    for (let s=0;s<e.sessions;s++){ if (sess[s] && sess[s].series>=e.series) d++; else if (sess[s]) d+=sess[s].series/e.series; }
+    done += Math.min(d, e.sessions);
+    total += e.sessions;
+    perEx.push(sess.filter(x=>x && x.series>=e.series).length >= e.sessions);
+  }
+  return { done, total, perEx, state: done>=total ? "full" : done>0 ? "part" : "none" };
+}
+function renderCal(){
+  if (!calView){ const d=new Date(); calView={y:d.getFullYear(),m:d.getMonth()}; }
+  if (!calSel) calSel = todayKey();
+  const MONTHS=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+  const DOWS=["L","M","X","J","V","S","D"];
+  const tk = todayKey();
+  const daysInMonth = new Date(calView.y, calView.m+1, 0).getDate();
+  let lead = new Date(calView.y, calView.m, 1).getDay()-1; if (lead<0) lead=6;
+
+  let grid = DOWS.map(d=>`<div class="dow">${d}</div>`).join("");
+  for (let i=0;i<lead;i++) grid += `<div class="calcell out"></div>`;
+  for (let d=1; d<=daysInMonth; d++){
+    const key = fmtKey(new Date(calView.y, calView.m, d));
+    const st = dayStats(key);
+    const cls = ["calcell"];
+    if (st.state==="full") cls.push("full");
+    else if (st.state==="part") cls.push("part");
+    if (key===tk) cls.push("today");
+    if (key===calSel) cls.push("sel");
+    let mini = "";
+    if (st.state!=="none") mini = `<span class="mini">${st.perEx.map(ok=>`<i class="${ok?"on":""}"></i>`).join("")}</span>`;
+    grid += `<div class="${cls.join(" ")}" data-day="${key}">${d}${mini}</div>`;
+  }
+
+  // detalle del día seleccionado
+  const selRec = log[calSel] || {};
+  const selDate = new Date(calSel+"T00:00:00");
+  const selLabel = selDate.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"});
+  let detail = "";
+  for (const e of EXERCISES){
+    const sess = sessOf(selRec, e.id);
+    const fullCount = sess.filter(x=>x && x.series>=e.series).length;
+    let chips = "";
+    let any = false;
+    for (let s=0;s<e.sessions;s++){
+      const x = sess[s];
+      if (x){
+        any = true;
+        chips += `<span class="chip tnum">${x.t ? x.t+" h" : "Sesión "+(s+1)} · <b>${x.series}/${e.series}</b> series</span>`;
+      }
+    }
+    if (!any) chips = `<span class="chip off">Sin sesiones ese día</span>`;
+    detail += `<div class="dayrow">
+      <div class="dayrow-top"><span class="dayrow-name">${e.short}</span>
+      <span class="dayrow-count tnum">${fullCount}/${e.sessions} sesiones</span></div>
+      <div class="chips">${chips}</div></div>`;
+  }
+
+  // detalle de fármacos del día seleccionado
+  const selMed = medLog[calSel] || {};
+  let farm = "";
+  if (cfg.anticoag){
+    const acArr = selMed.ac || [];
+    farm += `<div class="dayrow">
+      <div class="dayrow-top"><span class="dayrow-name">💉 ${esc(cfg.anticoag.name)}</span>
+      <span class="dayrow-count tnum">${acArr.length?acArr.length+" pinchazo"+(acArr.length>1?"s":""):""}</span></div>
+      <div class="chips">${acArr.length ? acArr.map(x=>`<span class="chip tnum">${x.t} h · ${sideLabel(x.side)}</span>`).join("") : '<span class="chip off">Sin registro</span>'}</div></div>`;
+  }
+  (cfg.meds||[]).forEach(m=>{
+    const takes = (selMed.meds && selMed.meds[m.id]) || [];
+    farm += `<div class="dayrow">
+      <div class="dayrow-top"><span class="dayrow-name">${esc(m.name)}</span>
+      <span class="dayrow-count tnum">${takes.length?takes.length+" toma"+(takes.length>1?"s":""):""}</span></div>
+      <div class="chips">${takes.length ? takes.map(t=>`<span class="chip tnum">${t.t} h</span>`).join("") : '<span class="chip off">Sin tomas</span>'}</div></div>`;
+  });
+
+  // racha
+  let streak=0;
+  for (let i=0;i<120;i++){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const st = dayStats(fmtKey(d));
+    if (st.state==="full") streak++;
+    else if (i===0) continue;
+    else break;
+  }
+
+  $("#view").innerHTML = `
+    <div class="card">
+      <div class="calhead">
+        <button class="calnav" data-nav="-1">‹</button>
+        <b>${MONTHS[calView.m]} ${calView.y}</b>
+        <button class="calnav" data-nav="1">›</button>
+      </div>
+      <div class="calgrid">${grid}</div>
+      <div class="callegend">
+        <span><i style="background:var(--pine)"></i>Completo</span>
+        <span><i style="background:var(--pine-soft)"></i>Parcial</span>
+        <span><i style="border:2px solid var(--teal)"></i>Hoy</span>
+        <span><i style="border:2px solid var(--amber)"></i>Seleccionado</span>
+      </div>
+    </div>
+    <div class="sect" style="text-transform:capitalize">${selLabel}</div>
+    <div class="card">${detail}</div>
+    ${farm ? `<div class="sect">Fármacos</div><div class="card">${farm}</div>` : ""}
+    <div class="card streak"><div class="n tnum">${streak}</div><div class="l">días completos seguidos</div></div>`;
+}
+
+/* ---------------- ÁNGULO ---------------- */
+function renderAngle(){
+  const goal = goalNow(), week = weekNow();
+  const last = angles.length ? angles[angles.length-1] : null;
+  const shown = angleMode==="manual" ? manualVal : (gonioFlex!=null ? gonioFlex : (last?last.angle:null));
+
+  $("#view").innerHTML = `
+    <div class="card">
+      <div class="bigangle">
+        <div class="val tnum">${shown!=null?shown:"—"}<span class="deg">°</span></div>
+        <div class="goal">objetivo S${week}<b class="tnum">${goal}°</b></div>
+      </div>
+      <div class="modeswitch">
+        <button id="mPhoto" class="${angleMode==="photo"?"on":""}">📷 Con foto</button>
+        <button id="mManual" class="${angleMode==="manual"?"on":""}">🎚 Manual</button>
+      </div>
+      <div id="angleBody"></div>
+    </div>
+    <div class="sect" style="margin-top:16px">Progresión de flexión</div>
+    <div class="card">
+      ${angles.length===0
+        ? '<div class="empty">Aún no hay medidas.<br>Guarda tu primera para empezar la curva.</div>'
+        : '<canvas id="chartCanvas"></canvas>'}
+      <div class="hint" style="margin:8px 2px 0">Lo importante es que la curva suba cada semana sin que la rodilla se hinche al día siguiente.</div>
+    </div>`;
+
+  const body = $("#angleBody");
+  if (angleMode==="manual"){
+    body.innerHTML = `
+      <input type="range" class="slider" id="manualSlider" min="0" max="140" step="1" value="${manualVal}">
+      <div class="sliderlabels"><span>0° recta</span><span>90° en "L"</span><span>140°</span></div>
+      <div class="hint">Mira la rodilla de perfil: 90° es espinilla vertical con muslo horizontal (forma de "L"). Más cerrado hacia el glúteo = más grados.</div>
+      <button class="btn" style="width:100%" id="saveManual">Guardar ${manualVal}°</button>`;
+    $("#manualSlider").addEventListener("input",(e)=>{
+      manualVal = Number(e.target.value);
+      $("#saveManual").textContent = "Guardar "+manualVal+"°";
+      document.querySelector(".bigangle .val").innerHTML = manualVal+'<span class="deg">°</span>';
+    });
+    $("#saveManual").addEventListener("click",()=>{ saveAngle(manualVal); });
+  } else {
+    body.innerHTML = `
+      ${!gonioImg ? `<label class="filelabel" for="fileInput">📷 <b>Toca para hacer o subir una foto</b> de la rodilla de perfil<br><span style="font-size:12px">(cámara o galería)</span></label>` : ""}
+      <input type="file" id="fileInput" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0;">
+      <div id="angleErr"></div>
+      <div id="detectStatus"></div>
+      <canvas id="gonioCanvas"></canvas>
+      <div id="gonioControls"></div>`;
+    $("#fileInput").addEventListener("change", onFileChosen);
+    if (gonioImg){ setupGonioCanvas(); if(detectMsg) setDetectStatus(detectMsg); }
+  }
+  if (angles.length) drawChart();
+}
+
+function saveAngle(v){
+  const tk = todayKey();
+  angles = angles.filter(a=>a.date!==tk);
+  angles.push({date:tk, angle:v});
+  angles.sort((a,b)=>a.date.localeCompare(b.date));
+  saveAll(); beep(1100,0.2,0.08); render();
+}
+
+function onFileChosen(ev){
+  const file = ev.target.files && ev.target.files[0];
+  ev.target.value = "";
+  const errBox = $("#angleErr");
+  if (!file){ if(errBox) errBox.innerHTML = '<div class="note warn">No llegó ninguna imagen del selector.</div>'; return; }
+  const finish = (img)=>{ gonioImg = img; gonioPts=[]; gonioFlex=null; gonioDrag=-1; detectMsg=""; renderAngle(); runDetection(); };
+  const viaReader = ()=>{
+    const r = new FileReader();
+    r.onerror = ()=>{ if(errBox) errBox.innerHTML = '<div class="note warn">No se pudo leer la imagen. Usa el modo Manual mientras tanto.</div>'; };
+    r.onload = ()=>{
+      const img = new Image();
+      img.onerror = ()=>{ if(errBox) errBox.innerHTML = '<div class="note warn">Formato no soportado ('+esc(file.type||"desconocido")+'). Prueba con una captura de pantalla de la foto.</div>'; };
+      img.onload = ()=>finish(img);
+      img.src = r.result;
+    };
+    r.readAsDataURL(file);
+  };
+  try{
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onerror = ()=>{ try{URL.revokeObjectURL(url);}catch(e){} viaReader(); };
+    img.onload = ()=>{ finish(img); try{URL.revokeObjectURL(url);}catch(e){} };
+    img.src = url;
+  }catch(e){ viaReader(); }
+}
+
+/* ---- carga perezosa de TensorFlow.js + MoveNet ---- */
+function loadScript(src){
+  return new Promise((res,rej)=>{
+    const s=document.createElement("script"); s.src=src;
+    s.onload=res; s.onerror=()=>rej(new Error("No se pudo cargar "+src));
+    document.head.appendChild(s);
+  });
+}
+async function getDetector(){
+  if (poseDetector) return poseDetector;
+  if (!window.tf) await loadScript("https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js");
+  if (!window.poseDetection) await loadScript("https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.1.3/dist/pose-detection.min.js");
+  await tf.ready();
+  poseDetector = await poseDetection.createDetector(
+    poseDetection.SupportedModels.MoveNet,
+    { modelType: poseDetection.movenet.modelType.SINGLEPOSE_THUNDER }
+  );
+  return poseDetector;
+}
+
+function setDetectStatus(html){ detectMsg=html; const el=$("#detectStatus"); if(el) el.innerHTML=html; }
+
+async function runDetection(){
+  if (!gonioImg) return;
+  setDetectStatus('<div class="note">⏳ Cargando el detector y analizando la foto…</div>');
+  let detector;
+  try{ detector = await getDetector(); }
+  catch(e){
+    setDetectStatus('<div class="note warn">No se pudo cargar el detector (¿sin conexión?). Coloca los puntos tocando: <b>cadera → rodilla → tobillo</b>. Luego puedes arrastrarlos.</div>');
+    return;
+  }
+  try{
+    const poses = await detector.estimatePoses(gonioImg, { maxPoses:1, flipHorizontal:false });
+    if (!poses.length){ throw new Error("no pose"); }
+    const kp = {}; poses[0].keypoints.forEach(k=>kp[k.name]=k);
+    const L = [kp["left_hip"], kp["left_knee"], kp["left_ankle"]];
+    const R = [kp["right_hip"], kp["right_knee"], kp["right_ankle"]];
+    const sc = arr => arr.reduce((s,k)=>s+((k&&k.score)||0),0);
+    const chosen = sc(L) >= sc(R) ? L : R;
+    const avg = sc(chosen)/3;
+    if (chosen.some(k=>!k) || avg < 0.15){ throw new Error("baja confianza"); }
+    const cv = $("#gonioCanvas");
+    const scale = cv.width / gonioImg.width;
+    gonioPts = chosen.map(k=>({ x:k.x*scale, y:k.y*scale }));
+    computeFlex(); drawGonio(); renderGonioControls();
+    const pct = Math.round(avg*100);
+    const warn = avg < 0.4;
+    setDetectStatus(`<div class="note ${warn?"warn":""}">${warn?"⚠️":"✓"} Detección automática (confianza ${pct}%). <b>Arrastra</b> los puntos para afinar y pulsa Guardar.${warn?" La confianza es baja, revisa bien la colocación.":""}</div>`);
+    beep(880,0.12,0.05); buzz(120);
+  }catch(e){
+    setDetectStatus('<div class="note warn">La IA no localizó bien la pierna en esta foto (suele pasar en primeros planos). Coloca los puntos tocando <b>cadera → rodilla → tobillo</b> y arrástralos para ajustar.</div>');
+  }
+}
+
+function canvasPoint(e){
+  const cv=$("#gonioCanvas"); const rect=cv.getBoundingClientRect();
+  return { x:(e.clientX-rect.left)*(cv.width/rect.width), y:(e.clientY-rect.top)*(cv.height/rect.height) };
+}
+
+function setupGonioCanvas(){
+  const cv = $("#gonioCanvas");
+  const maxW = 900;
+  const scale = Math.min(1, maxW/gonioImg.width);
+  cv.width = Math.round(gonioImg.width*scale);
+  cv.height = Math.round(gonioImg.height*scale);
+  cv.style.display = "block";
+  drawGonio();
+  renderGonioControls();
+
+  const hitR = ()=>Math.max(26, cv.width/22);
+
+  cv.onpointerdown = (e)=>{
+    e.preventDefault();
+    const p = canvasPoint(e);
+    let best=-1, bestD=hitR();
+    gonioPts.forEach((pt,i)=>{ const d=Math.hypot(pt.x-p.x,pt.y-p.y); if(d<bestD){bestD=d;best=i;} });
+    if (best>=0){
+      gonioDrag = best;
+      try{ cv.setPointerCapture(e.pointerId); }catch(_){}
+      drawGonio();
+    } else if (gonioPts.length<3){
+      gonioPts.push(p);
+      beep(760,0.06,0.04);
+      computeFlex(); drawGonio(); renderGonioControls();
+    }
+  };
+  cv.onpointermove = (e)=>{
+    if (gonioDrag<0) return;
+    e.preventDefault();
+    gonioPts[gonioDrag] = canvasPoint(e);
+    computeFlex(); drawGonio();
+  };
+  const endDrag = ()=>{ if(gonioDrag>=0){ gonioDrag=-1; drawGonio(); renderGonioControls(); } };
+  cv.onpointerup = endDrag;
+  cv.onpointercancel = endDrag;
+}
+
+function computeFlex(){
+  if (gonioPts.length===3){
+    const [A,B,C]=gonioPts;
+    const v1={x:A.x-B.x,y:A.y-B.y}, v2={x:C.x-B.x,y:C.y-B.y};
+    const dot=v1.x*v2.x+v1.y*v2.y;
+    const ang=Math.acos(Math.max(-1,Math.min(1,dot/(Math.hypot(v1.x,v1.y)*Math.hypot(v2.x,v2.y)))))*180/Math.PI;
+    gonioFlex=Math.round(180-ang);
+    const big=document.querySelector(".bigangle .val");
+    if (big) big.innerHTML = gonioFlex+'<span class="deg">°</span>';
+  } else gonioFlex=null;
+}
+
+function drawGonio(){
+  const cv=$("#gonioCanvas"); if(!cv||!gonioImg) return;
+  const ctx=cv.getContext("2d");
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.drawImage(gonioImg,0,0,cv.width,cv.height);
+  const LABELS=["Cadera","Rodilla","Tobillo"];
+  if (gonioPts.length>=2){
+    ctx.strokeStyle="#0E9C9C"; ctx.lineWidth=Math.max(3,cv.width/160);
+    ctx.beginPath(); ctx.moveTo(gonioPts[0].x,gonioPts[0].y);
+    for(let i=1;i<gonioPts.length;i++) ctx.lineTo(gonioPts[i].x,gonioPts[i].y);
+    ctx.stroke();
+  }
+  if (gonioPts.length===3){
+    const [A,B,C]=gonioPts;
+    let a1=Math.atan2(A.y-B.y,A.x-B.x), a2=Math.atan2(C.y-B.y,C.x-B.x);
+    if (a2-a1>Math.PI) a1+=2*Math.PI;
+    if (a1-a2>Math.PI) a2+=2*Math.PI;
+    ctx.strokeStyle="#DD8F2B"; ctx.lineWidth=Math.max(2,cv.width/220);
+    ctx.beginPath(); ctx.arc(B.x,B.y,Math.max(28,cv.width/12),Math.min(a1,a2),Math.max(a1,a2)); ctx.stroke();
+    if (gonioFlex!=null){
+      ctx.fillStyle="#DD8F2B"; ctx.font="bold "+Math.max(16,cv.width/26)+"px sans-serif";
+      ctx.textAlign="left"; ctx.textBaseline="middle";
+      ctx.fillText(gonioFlex+"°", B.x+Math.max(30,cv.width/11), B.y);
+    }
+  }
+  const r = Math.max(8, cv.width/60);
+  gonioPts.forEach((p,i)=>{
+    if (i===gonioDrag){
+      ctx.beginPath(); ctx.arc(p.x,p.y,r+6,0,Math.PI*2);
+      ctx.strokeStyle="rgba(255,255,255,.8)"; ctx.lineWidth=2; ctx.stroke();
+    }
+    ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
+    ctx.fillStyle=i===1?"#DD8F2B":"#0E9C9C"; ctx.fill();
+    ctx.lineWidth=3; ctx.strokeStyle="#fff"; ctx.stroke();
+    ctx.fillStyle="#fff"; ctx.font="bold "+Math.max(9,cv.width/80)+"px sans-serif";
+    ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.fillText(i+1, p.x, p.y);
+  });
+  // lupa mientras se arrastra (el dedo tapa el punto)
+  if (gonioDrag>=0){
+    const p = gonioPts[gonioDrag];
+    const lr = Math.max(46, cv.width/8);       // radio de la lupa (en canvas)
+    const zoom = 2.6;
+    const sx = cv.width/gonioImg.width;        // escala imagen → canvas (x)
+    const sy = cv.height/gonioImg.height;      // escala imagen → canvas (y)
+    const imgX = p.x/sx, imgY = p.y/sy;        // punto en coords de la imagen
+    const halfX = (lr/zoom)/sx;                // media ventana origen (imagen)
+    const halfY = (lr/zoom)/sy;
+    const lx = (p.x < cv.width/2) ? cv.width - lr - 10 : lr + 10;  // esquina opuesta al punto
+    const ly = lr + 10;
+    ctx.save();
+    ctx.beginPath(); ctx.arc(lx,ly,lr,0,Math.PI*2); ctx.closePath();
+    ctx.fillStyle="#000"; ctx.fill();
+    ctx.clip();
+    ctx.drawImage(gonioImg,
+      imgX - halfX, imgY - halfY, halfX*2, halfY*2,   // origen centrado en el punto
+      lx - lr, ly - lr, lr*2, lr*2);                  // destino: la lupa
+    // cruz central
+    ctx.strokeStyle="#DD8F2B"; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(lx-12,ly); ctx.lineTo(lx+12,ly);
+    ctx.moveTo(lx,ly-12); ctx.lineTo(lx,ly+12); ctx.stroke();
+    ctx.restore();
+    ctx.beginPath(); ctx.arc(lx,ly,lr,0,Math.PI*2);
+    ctx.strokeStyle="#fff"; ctx.lineWidth=3; ctx.stroke();
+  }
+}
+
+function renderGonioControls(){
+  const box=$("#gonioControls"); if(!box) return;
+  const LABELS=["Cadera","Rodilla","Tobillo"];
+  let pts="";
+  LABELS.forEach((l,i)=>{
+    pts+=`<div class="pt ${i<gonioPts.length?"done":i===gonioPts.length?"next":""}">${i+1}. ${l}</div>`;
+  });
+  const ready = gonioPts.length===3;
+  box.innerHTML=`
+    <div class="pts">${pts}</div>
+    <div class="hint">${ready
+      ? '<b>Arrastra</b> cualquier punto para corregir (aparece una lupa). Cuando esté bien, pulsa Guardar.'
+      : 'Coloca tocando: <b>cadera → rodilla → tobillo</b>. Luego arrástralos para ajustar.'}</div>
+    <div class="row" style="margin-bottom:8px">
+      <button class="btn ghost" id="gDetect">🔍 Detectar de nuevo</button>
+      <button class="btn ghost" id="gClear" ${gonioPts.length?"":"disabled"}>Borrar puntos</button>
+    </div>
+    <div class="row">
+      <button class="btn ghost" id="gNew">Otra foto</button>
+      <button class="btn" id="gSave" ${ready?"":"disabled"}>Aceptar y guardar${ready?" · "+gonioFlex+"°":""}</button>
+    </div>`;
+  $("#gDetect").onclick=()=>{ gonioPts=[]; gonioFlex=null; drawGonio(); runDetection(); };
+  $("#gClear").onclick=()=>{ gonioPts=[]; gonioFlex=null; computeFlex(); drawGonio(); renderGonioControls(); };
+  $("#gNew").onclick=()=>{ $("#fileInput").click(); };
+  $("#gSave").onclick=()=>{ if(gonioFlex!=null) saveAngle(gonioFlex); };
+}
+
+function drawChart(){
+  const cv=$("#chartCanvas"); if(!cv) return;
+  const dpr=window.devicePixelRatio||1;
+  const W=cv.clientWidth, H=210;
+  cv.width=W*dpr; cv.height=H*dpr;
+  const ctx=cv.getContext("2d"); ctx.scale(dpr,dpr);
+  const padL=34,padR=10,padT=14,padB=24;
+  const goal=goalNow();
+  const ys=v=>padT+(140-v)/140*(H-padT-padB);
+  const n=angles.length;
+  const xs=i=>padL+(n===1?((W-padL-padR)/2):(i/(n-1))*(W-padL-padR));
+  // rejilla
+  ctx.strokeStyle="#EEF1EC"; ctx.lineWidth=1; ctx.fillStyle="#69796F";
+  ctx.font="10px sans-serif"; ctx.textAlign="right";
+  [0,45,90,135].forEach(v=>{
+    ctx.beginPath(); ctx.moveTo(padL,ys(v)); ctx.lineTo(W-padR,ys(v)); ctx.stroke();
+    ctx.fillText(v+"°",padL-6,ys(v)+3);
+  });
+  // meta
+  ctx.strokeStyle="#DD8F2B"; ctx.setLineDash([5,4]);
+  ctx.beginPath(); ctx.moveTo(padL,ys(goal)); ctx.lineTo(W-padR,ys(goal)); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle="#DD8F2B"; ctx.textAlign="right"; ctx.font="bold 10px sans-serif";
+  ctx.fillText("meta "+goal+"°", W-padR-2, ys(goal)-5);
+  // línea
+  ctx.strokeStyle="#2E7D5B"; ctx.lineWidth=3; ctx.beginPath();
+  angles.forEach((a,i)=>{ const x=xs(i),y=ys(a.angle); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+  ctx.stroke();
+  // puntos + etiquetas
+  ctx.textAlign="center";
+  angles.forEach((a,i)=>{
+    const x=xs(i),y=ys(a.angle);
+    ctx.beginPath(); ctx.arc(x,y,4.5,0,Math.PI*2); ctx.fillStyle="#0E9C9C"; ctx.fill();
+    ctx.fillStyle="#16302A"; ctx.font="bold 10px sans-serif"; ctx.fillText(a.angle+"°",x,y-9);
+    ctx.fillStyle="#69796F"; ctx.font="9px sans-serif"; ctx.fillText(shortDate(a.date),x,H-8);
+  });
+}
+
+/* ---------------- FÁRMACOS ---------------- */
+function sideLabel(s){ return s==="izq" ? "izquierdo" : "derecho"; }
+function sideBig(s){ return s==="izq" ? "◀ IZQUIERDO" : "DERECHO ▶"; }
+function acToday(){ const r=medLog[todayKey()]; return (r && r.ac) || []; }
+function suggestedSideForToday(){
+  const tk = todayKey();
+  const dates = Object.keys(medLog).filter(d=>d<tk).sort();
+  for (let i=dates.length-1;i>=0;i--){
+    const ac = medLog[dates[i]].ac;
+    if (ac && ac.length){ return ac[ac.length-1].side==="izq" ? "der" : "izq"; }
+  }
+  return (cfg.anticoag && cfg.anticoag.startSide) || "izq";
+}
+function logAnticoag(){
+  const side = suggestedSideForToday();
+  const d = todayKey();
+  medLog[d] = medLog[d] || {};
+  medLog[d].ac = medLog[d].ac || [];
+  medLog[d].ac.push({ t:nowHM(), side });
+  saveAll(); beep(1000,0.16,0.08); buzz(180); render();
+}
+function undoAnticoag(){
+  const d = todayKey();
+  if (medLog[d] && medLog[d].ac && medLog[d].ac.length){ medLog[d].ac.pop(); saveAll(); render(); }
+}
+function takeMed(id){
+  const d = todayKey();
+  medLog[d] = medLog[d] || {}; medLog[d].meds = medLog[d].meds || {};
+  medLog[d].meds[id] = medLog[d].meds[id] || [];
+  medLog[d].meds[id].push({ t:nowHM() });
+  saveAll(); beep(900,0.12,0.06); buzz(120); render();
+}
+function undoMed(id){
+  const d = todayKey();
+  if (medLog[d] && medLog[d].meds && medLog[d].meds[id] && medLog[d].meds[id].length){
+    medLog[d].meds[id].pop(); saveAll(); render();
+  }
+}
+
+function renderMeds(){
+  const ac = cfg.anticoag;
+  const tk = todayKey();
+  let html = '<div class="sect">Anticoagulante</div>';
+
+  if (!ac){
+    html += `<div class="card">
+      <div class="setup-q">¿Qué anticoagulante te pinchas?</div>
+      <select id="acName" class="selfield">
+        <option value="">Elige de la lista…</option>
+        <option>Enoxaparina (Clexane)</option>
+        <option>Bemiparina (Hibor)</option>
+        <option>Nadroparina (Fraxiparina)</option>
+        <option>Tinzaparina (Innohep)</option>
+        <option>Dalteparina (Fragmin)</option>
+      </select>
+      <input id="acCustom" class="selfield" placeholder="…o escribe otro nombre">
+      <input id="acDose" class="selfield" placeholder="Dosis (opcional), p. ej. 40 mg / 0,4 ml">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin:4px 0 8px">Primer pinchazo en el lado</div>
+      <div class="segside">
+        <button id="segIzq" class="${acStartSide==="izq"?"on":""}">Izquierdo</button>
+        <button id="segDer" class="${acStartSide==="der"?"on":""}">Derecho</button>
+      </div>
+      <button class="btn" id="acSave" style="width:100%">Guardar anticoagulante</button>
+      <div class="hint">A partir de ahí la app te dirá cada día en qué lado toca, alternando solo.</div>
+    </div>`;
+  } else {
+    const today = acToday();
+    const injected = today.length > 0;
+    const side = injected ? null : suggestedSideForToday();
+    html += `<div class="card">
+      <div class="med-title">💉 ${esc(ac.name)}${ac.dose?` · <span class="med-dose">${esc(ac.dose)}</span>`:""}</div>`;
+    if (injected){
+      const last = today[today.length-1];
+      html += `<div class="ac-done">✓ Hoy pinchado a las ${last.t} h · lado ${sideLabel(last.side)}</div>
+        <div class="row"><button class="btn ghost" id="acUndo">Deshacer</button></div>`;
+    } else {
+      html += `<div class="ac-side ${side}">
+          <span class="ac-side-label">Hoy toca</span>
+          <span class="ac-side-big">${sideBig(side)}</span>
+        </div>
+        <button class="btn" id="acLog" style="width:100%">Registrar pinchazo (lado ${sideLabel(side)})</button>`;
+    }
+    html += `<div class="hint">Se alterna el lado en cada pinchazo. Zona habitual: abdomen, a un par de dedos del ombligo, pellizcando la piel. Ante hematomas grandes, sangrado o dudas, consulta con tu médico.</div>
+      <button class="med-del" id="acEdit">Cambiar anticoagulante</button>
+    </div>`;
+  }
+
+  /* --- Medicación --- */
+  html += '<div class="sect" style="margin-top:16px">Medicación</div><div class="card">';
+  const meds = cfg.meds || [];
+  if (meds.length === 0){
+    html += '<div class="empty">Aún no has añadido fármacos.<br>Añade el primero abajo.</div>';
+  } else {
+    meds.forEach(m=>{
+      const takes = (medLog[tk] && medLog[tk].meds && medLog[tk].meds[m.id]) || [];
+      html += `<div class="med-row">
+        <div class="med-row-top">
+          <div class="mi"><b>${esc(m.name)}</b>${m.dose?` <span class="med-dose">${esc(m.dose)}</span>`:""}
+            ${m.note?`<div class="med-note">${esc(m.note)}</div>`:""}
+            <button class="med-del" data-delmed="${m.id}">Eliminar</button>
+          </div>
+          <button class="med-take" data-take="${m.id}">Tomar</button>
+        </div>
+        <div class="chips">
+          ${takes.length ? takes.map(t=>`<span class="chip tnum">${t.t} h</span>`).join("") : '<span class="chip off">Aún no hoy</span>'}
+          ${takes.length ? `<button class="chip-undo" data-medundo="${m.id}">deshacer última</button>` : ""}
+        </div>
+      </div>`;
+    });
+  }
+  html += `<div class="addmed">
+    <input id="newMedName" class="selfield" placeholder="Nombre del fármaco">
+    <input id="newMedDose" class="selfield" placeholder="Dosis (opcional), p. ej. 1 g">
+    <input id="newMedNote" class="selfield" placeholder="Pauta o nota (opcional), p. ej. cada 8 h">
+    <button class="btn" id="addMedBtn" style="width:100%">+ Añadir fármaco</button>
+  </div></div>`;
+
+  $("#view").innerHTML = html;
+
+  /* --- handlers anticoagulante --- */
+  if (!ac){
+    $("#segIzq").onclick = ()=>{ acStartSide="izq"; renderMeds(); };
+    $("#segDer").onclick = ()=>{ acStartSide="der"; renderMeds(); };
+    $("#acSave").onclick = ()=>{
+      const sel = $("#acName").value.trim();
+      const cust = $("#acCustom").value.trim();
+      const name = cust || sel;
+      if (!name){ $("#acName").focus(); return; }
+      cfg.anticoag = { name, dose:$("#acDose").value.trim(), startSide:acStartSide };
+      saveAll(); render();
+    };
+  } else {
+    const logBtn=$("#acLog"); if(logBtn) logBtn.onclick=logAnticoag;
+    const undoBtn=$("#acUndo"); if(undoBtn) undoBtn.onclick=undoAnticoag;
+    $("#acEdit").onclick=()=>{ if(confirm("¿Cambiar el anticoagulante? Se conservan los registros ya hechos.")){ cfg.anticoag=null; saveAll(); render(); } };
+  }
+
+  /* --- handlers medicación --- */
+  $("#addMedBtn").onclick = ()=>{
+    const name = $("#newMedName").value.trim();
+    if (!name){ $("#newMedName").focus(); return; }
+    cfg.meds = cfg.meds || [];
+    cfg.meds.push({ id:"m"+Date.now(), name, dose:$("#newMedDose").value.trim(), note:$("#newMedNote").value.trim() });
+    saveAll(); render();
+  };
+  document.querySelectorAll("[data-take]").forEach(b=> b.onclick=()=>takeMed(b.dataset.take));
+  document.querySelectorAll("[data-medundo]").forEach(b=> b.onclick=()=>undoMed(b.dataset.medundo));
+  document.querySelectorAll("[data-delmed]").forEach(b=> b.onclick=()=>{
+    if (confirm("¿Eliminar este fármaco de la lista? El historial de tomas se conserva.")){
+      cfg.meds = cfg.meds.filter(m=>m.id!==b.dataset.delmed); saveAll(); render();
+    }
+  });
+}
+
+/* ---------------- AVISOS ---------------- */
+function renderAvisos(){
+  let rows="";
+  cfg.reminders.forEach((t,i)=>{
+    rows+=`<div class="rem">
+      <input type="time" value="${t}" data-time="${i}">
+      <span>Sesión ${i+1}</span>
+      <button class="del" data-del="${i}">Quitar</button></div>`;
+  });
+  const perm = ("Notification" in window) ? Notification.permission : "unsupported";
+  $("#view").innerHTML = `
+    <div class="sect">Horarios de recordatorio</div>
+    <div class="card">${rows}
+      <div class="row" style="margin-top:12px">
+        <button class="btn ghost" id="addTime">+ Añadir hora</button>
+        <button class="btn ghost" id="testNotif">Probar aviso</button>
+      </div>
+    </div>
+    <div class="sect" style="margin-top:16px">Notificaciones</div>
+    <div class="card">
+      ${perm==="granted"
+        ? '<div class="note">Avisos del navegador activados ✓</div>'
+        : `<button class="btn" id="enableNotif" ${perm==="unsupported"?"disabled":""}>Activar avisos del navegador</button>`}
+      <div class="note warn">Los avisos suenan con la app abierta. Instalada como PWA en el móvil (añadir a pantalla de inicio desde GitHub Pages) funcionan mejor; y como refuerzo, alarmas del teléfono.</div>
+    </div>
+    <div class="sect" style="margin-top:16px">Ajustes</div>
+    <div class="card">
+      <div class="cfgrow"><label>Fecha de la operación</label>
+        <input type="date" id="surgeryDate" max="${todayKey()}" value="${cfg.surgery||""}"></div>
+      <div class="hint" style="margin:10px 2px 0" id="surgeryInfo">${
+        cfg.surgery
+          ? `Llevas <b>${daysSinceOp()} días</b> · semana <b>${weekNow()}</b>. Objetivo actual: <b>${goalNow()}°</b>.`
+          : "Sin fecha configurada."
+      }</div>
+      <div class="hint" style="margin:8px 2px 0">Objetivos orientativos de flexión: S1–2 → 90°, S3–4 → 105°, S4–6 → 120°, S6+ → 130–135°. Tu cirujano manda siempre.</div>
+    </div>`;
+  $("#addTime").onclick=()=>{ cfg.reminders.push("12:00"); saveAll(); render(); };
+  $("#testNotif").onclick=()=>{
+    if ("Notification" in window && Notification.permission==="granted")
+      new Notification("Rehab · toca sesión",{body:"Isométricos, elevaciones y deslizamientos 💪"});
+    else { beep(880,0.2); buzz(200); }
+  };
+  const en=$("#enableNotif");
+  if (en) en.onclick=async()=>{
+    const p=await Notification.requestPermission();
+    if (p==="granted") new Notification("Rehab",{body:"Avisos activados."});
+    render();
+  };
+  $("#surgeryDate").onchange=(e)=>{ if(e.target.value){ cfg.surgery=e.target.value; saveAll(); render(); } };
+  document.querySelectorAll("[data-time]").forEach(inp=>{
+    inp.onchange=(e)=>{ cfg.reminders[Number(inp.dataset.time)]=e.target.value; saveAll(); };
+  });
+  document.querySelectorAll("[data-del]").forEach(b=>{
+    b.onclick=()=>{ cfg.reminders.splice(Number(b.dataset.del),1); saveAll(); render(); };
+  });
+}
+
+/* comprobación de recordatorios cada 30 s con la app abierta */
+let lastFired = "";
+setInterval(()=>{
+  const hm = nowHM();
+  if (hm===lastFired) return;
+  if (cfg.reminders.includes(hm)){
+    lastFired = hm;
+    beep(880,0.25,0.1); buzz(400);
+    if ("Notification" in window && Notification.permission==="granted")
+      new Notification("Rehab · toca sesión",{body:"Isométricos, elevaciones y deslizamientos 💪"});
+  }
+},30000);
+
+/* ================================================================
+   Eventos globales
+================================================================ */
+document.addEventListener("click",(e)=>{
+  const tabBtn = e.target.closest(".tab");
+  if (tabBtn){ tab = tabBtn.dataset.tab; render(); return; }
+  const play = e.target.closest("[data-play]");
+  if (play){ startSession(play.dataset.play, Number(play.dataset.slot)); return; }
+  const serie = e.target.closest("[data-serie]");
+  if (serie){ toggleSerie(serie.dataset.serie, Number(serie.dataset.slot), Number(serie.dataset.idx)); return; }
+  const nav = e.target.closest("[data-nav]");
+  if (nav){
+    calView.m += Number(nav.dataset.nav);
+    if (calView.m<0){calView.m=11;calView.y--;}
+    if (calView.m>11){calView.m=0;calView.y++;}
+    render(); return;
+  }
+  const dayCell = e.target.closest("[data-day]");
+  if (dayCell){ calSel = dayCell.dataset.day; render(); return; }
+  if (e.target.id==="mPhoto"){ angleMode="photo"; render(); return; }
+  if (e.target.id==="mManual"){ angleMode="manual"; render(); return; }
+});
+$("#sessExit").onclick = exitSession;
+$("#sessPause").onclick = ()=>{ if(sessState){ sessState.paused=!sessState.paused; beep(700,0.08); updateSessUI(); } };
+$("#sessSkip").onclick = ()=>{ if(sessState && sessState.mode==="between"){ sessState.secs=1; advanceSession(); } };
+window.addEventListener("resize",()=>{ if(tab==="angle" && angles.length) drawChart(); });
+
+/* ================================================================
+   Arranque
+================================================================ */
+function targetForWeekLabel(w){ return w<=2?90:w<=4?105:w<=6?120:135; }
+function setupOnboard(){
+  const input = $("#obDate");
+  const info = $("#obInfo");
+  const btn = $("#obStart");
+  const tmax = todayKey();
+  input.max = tmax;
+  const update = ()=>{
+    const v = input.value;
+    if (!v){ btn.disabled=true; info.textContent="Elige la fecha para empezar."; return; }
+    const a = new Date(v+"T00:00:00"), b = new Date(tmax+"T00:00:00");
+    const days = Math.round((b-a)/86400000);
+    if (days<0){ btn.disabled=true; info.textContent="Esa fecha es futura. Revísala."; return; }
+    const w = Math.floor(days/7)+1;
+    btn.disabled=false;
+    info.innerHTML = `Han pasado <b>${days} día${days===1?"":"s"}</b> · estás en la <b>semana ${w}</b>. Objetivo de flexión orientativo: <b>${targetForWeekLabel(w)}°</b>.`;
+  };
+  input.addEventListener("input", update);
+  input.addEventListener("change", update);
+  btn.addEventListener("click", ()=>{
+    if (!input.value) return;
+    cfg.surgery = input.value;
+    saveAll();
+    $("#onboard").classList.remove("show");
+    render();
+  });
+  update();
+}
+
+(async function init(){
+  const c = await store.get(K.cfg);
+  const l = await store.get(K.log) || await store.get("rehab:exlog");
+  const a = await store.get(K.angles);
+  const md = await store.get(K.med);
+  if (c) cfg = Object.assign(cfg, c);
+  if (l) log = migrate(l);
+  if (a) angles = a;
+  if (md) medLog = md;
+
+  if (!cfg.surgery){
+    setupOnboard();
+    $("#onboard").classList.add("show");
+  } else {
+    render();
+  }
+})();
+</script>
+</body>
+</html>
