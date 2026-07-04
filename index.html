@@ -247,6 +247,7 @@ button{font-family:inherit;}
     <button id="sessPause">❚❚ Pausa</button>
     <button id="sessSkip" class="hidden">Saltar descanso ›</button>
   </div>
+  <div id="awakeInfo" style="text-align:center;font-size:11px;opacity:.75;padding:0 18px 8px;min-height:14px;"></div>
 </div>
 
 <div class="tabs">
@@ -396,10 +397,22 @@ function ensureNoSleepVideo(){
   return v;
 }
 async function keepAwake(){
+  let status = '';
   // Método 1: Wake Lock API (Chrome moderno)
-  try{ if ('wakeLock' in navigator){ wakeLock = await navigator.wakeLock.request('screen'); } }catch(e){}
+  try{
+    if ('wakeLock' in navigator){
+      wakeLock = await navigator.wakeLock.request('screen');
+      status = '🔆 WakeLock OK';
+    } else { status = 'WakeLock no soportado'; }
+  }catch(e){ status = 'WakeLock falló: ' + (e.name||e.message); }
   // Método 2 (respaldo): vídeo invisible en bucle, aguanta cuando el anterior falla
-  try{ const v = ensureNoSleepVideo(); v.loop = true; const p = v.play(); if (p && p.catch) p.catch(()=>{}); }catch(e){}
+  try{
+    const v = ensureNoSleepVideo(); v.loop = true;
+    await v.play();
+    status += ' · vídeo OK';
+  }catch(e){ status += ' · vídeo falló: ' + (e.name||e.message); }
+  const info = document.getElementById('awakeInfo');
+  if (info) info.textContent = status;
 }
 async function letSleep(){
   try{ if (wakeLock){ await wakeLock.release(); } }catch(e){}
