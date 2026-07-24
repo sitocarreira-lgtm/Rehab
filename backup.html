@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rehab · Copia de seguridad</title>
+<style>
+  :root{
+    --paper:#F7F5F0;
+    --card:#FFFFFF;
+    --ink:#12312C;
+    --ink-soft:#5C6F6A;
+    --teal:#0D9488;
+    --teal-deep:#05665E;
+    --alert:#C0392B;
+    --line:#E4E0D7;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;padding:20px 18px 60px;background:var(--paper);color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    line-height:1.5;-webkit-text-size-adjust:100%;
+  }
+  h1{font-size:22px;margin:0 0 2px;letter-spacing:-.01em}
+  .sub{color:var(--ink-soft);font-size:14px;margin:0 0 22px}
+  .sect{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin:26px 2px 8px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .btn{
+    -webkit-appearance:none;appearance:none;border:0;border-radius:11px;
+    background:var(--teal-deep);color:#fff;font-size:16px;font-weight:600;
+    padding:14px 16px;width:100%;margin-bottom:10px;cursor:pointer;
+  }
+  .btn:active{background:var(--teal)}
+  .btn.ghost{background:transparent;color:var(--teal-deep);border:1.5px solid var(--teal-deep)}
+  .btn.danger{background:transparent;color:var(--alert);border:1.5px solid var(--alert)}
+  .btn:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+  .manifest{
+    font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:13px;
+    border-top:1px solid var(--line);
+  }
+  .manifest .row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .manifest .k{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .manifest .v{color:var(--ink-soft);flex:none}
+  .total{display:flex;justify-content:space-between;font-family:ui-monospace,Menlo,monospace;
+    font-size:14px;font-weight:700;padding:12px 0 2px}
+  textarea{
+    width:100%;height:150px;font-family:ui-monospace,Menlo,monospace;font-size:11px;
+    border:1px solid var(--line);border-radius:10px;padding:10px;background:#FBFAF7;color:var(--ink);
+  }
+  .hint{font-size:13px;color:var(--ink-soft);margin:10px 2px 0}
+  .warn{background:#FDF0EE;color:#8C2E22;border-radius:10px;padding:12px 14px;font-size:14px;margin-top:12px}
+  .ok{background:#E9F5F2;color:var(--teal-deep);border-radius:10px;padding:12px 14px;font-size:14px;margin-top:12px}
+  label.opt{display:flex;gap:10px;align-items:flex-start;font-size:14px;margin:4px 0 14px}
+</style>
+</head>
+<body>
+
+<h1>Copia de seguridad</h1>
+<p class="sub">Lee y restaura los datos guardados en este navegador para <b>sitocarreira-lgtm.github.io</b>.</p>
+
+<div class="sect">Lo que hay guardado ahora</div>
+<div class="card">
+  <div class="manifest" id="manifest"></div>
+  <div class="total"><span id="totalKeys">—</span><span id="totalSize">—</span></div>
+</div>
+
+<div class="sect">Guardar copia</div>
+<div class="card">
+  <button class="btn" id="download">Descargar copia</button>
+  <button class="btn ghost" id="copy">Copiar al portapapeles</button>
+  <div class="hint">Si el archivo no se descarga, copia el texto de abajo y pégalo en una nota o en un correo para ti mismo. Sirve igual.</div>
+  <textarea id="dump" readonly spellcheck="false" style="margin-top:12px"></textarea>
+</div>
+
+<div class="sect">Restaurar</div>
+<div class="card">
+  <label class="opt"><input type="checkbox" id="wipe"> <span>Borrar todo lo actual antes de restaurar. Déjalo sin marcar salvo que quieras dejar el navegador exactamente como estaba en la copia.</span></label>
+  <button class="btn ghost" id="pick">Elegir archivo de copia</button>
+  <input type="file" id="file" accept="application/json,.json" hidden>
+  <div class="hint">O pega aquí el texto de una copia y pulsa Restaurar:</div>
+  <textarea id="paste" placeholder='{"app":"Rehab", ...}' spellcheck="false" style="margin-top:8px"></textarea>
+  <button class="btn" id="restorePaste" style="margin-top:10px">Restaurar desde el texto pegado</button>
+  <div id="status"></div>
+</div>
+
+<div class="warn">
+  Esta dirección comparte almacenamiento con todo lo que tengas publicado en la misma cuenta de GitHub Pages. La copia incluye esas claves también, y por eso restaurar borrando todo puede afectar a tus otras apps.
+</div>
+
+<script>
+(function(){
+  var $ = function(s){ return document.querySelector(s); };
+
+  function snapshot(){
+    var d = {};
+    for (var i=0;i<localStorage.length;i++){
+      var k = localStorage.key(i);
+      d[k] = localStorage.getItem(k);
+    }
+    return { app:'Rehab', schema:1, origin:location.origin, fecha:new Date().toISOString(), datos:d };
+  }
+
+  function bytes(n){
+    if (n < 1024) return n + ' B';
+    if (n < 1048576) return (n/1024).toFixed(1) + ' KB';
+    return (n/1048576).toFixed(2) + ' MB';
+  }
+
+  var snap, json;
+
+  function render(){
+    snap = snapshot();
+    json = JSON.stringify(snap, null, 2);
+    var keys = Object.keys(snap.datos).sort();
+    var html = '', total = 0;
+    if (!keys.length){
+      html = '<div class="row"><span class="k">No hay nada guardado en esta dirección.</span></div>';
+    }
+    keys.forEach(function(k){
+      var size = (snap.datos[k] || '').length;
+      total += size;
+      html += '<div class="row"><span class="k">'+k.replace(/[<>&]/g,'')+'</span><span class="v">'+bytes(size)+'</span></div>';
+    });
+    $('#manifest').innerHTML = html;
+    $('#totalKeys').textContent = keys.length + (keys.length===1?' clave':' claves');
+    $('#totalSize').textContent = bytes(total);
+    $('#dump').value = json;
+  }
+
+  function say(msg, good){
+    $('#status').innerHTML = '<div class="'+(good?'ok':'warn')+'">'+msg+'</div>';
+  }
+
+  $('#download').onclick = function(){
+    try{
+      var blob = new Blob([json], {type:'application/json'});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'rehab-copia-' + new Date().toISOString().slice(0,10) + '.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+    }catch(e){
+      say('No se pudo descargar: ' + e.message + '. Usa el botón de copiar o selecciona el texto a mano.');
+    }
+  };
+
+  $('#copy').onclick = function(){
+    var t = $('#dump');
+    t.removeAttribute('readonly');
+    t.select(); t.setSelectionRange(0, json.length);
+    var done = false;
+    try{ done = document.execCommand('copy'); }catch(e){}
+    t.setAttribute('readonly','');
+    if (navigator.clipboard && !done){
+      navigator.clipboard.writeText(json).then(function(){ say('Copiado. Pégalo ya en una nota.', true); },
+        function(){ say('No se pudo copiar. Selecciona el texto a mano y cópialo.'); });
+    } else {
+      say(done ? 'Copiado. Pégalo ya en una nota.' : 'No se pudo copiar. Selecciona el texto a mano.', done);
+    }
+  };
+
+  function restore(text){
+    var parsed;
+    try{ parsed = JSON.parse(text); }
+    catch(e){ say('Ese texto no es una copia válida: ' + e.message); return; }
+    var datos = parsed && parsed.datos ? parsed.datos : parsed;
+    if (!datos || typeof datos !== 'object'){ say('La copia no contiene datos reconocibles.'); return; }
+    var n = Object.keys(datos).length;
+    var wipe = $('#wipe').checked;
+    if (!confirm('Se van a escribir ' + n + ' claves' + (wipe ? ', borrando antes todo lo actual' : ', conservando lo que no aparezca en la copia') + '. ¿Continuar?')) return;
+    try{
+      if (wipe) localStorage.clear();
+      Object.keys(datos).forEach(function(k){ localStorage.setItem(k, datos[k]); });
+      render();
+      say('Restauradas ' + n + ' claves. Abre la app y comprueba que están tus sesiones.', true);
+    }catch(e){
+      say('Error al restaurar: ' + e.message);
+    }
+  }
+
+  $('#pick').onclick = function(){ $('#file').click(); };
+  $('#file').onchange = function(ev){
+    var f = ev.target.files[0];
+    if (!f) return;
+    var r = new FileReader();
+    r.onload = function(e){ restore(e.target.result); };
+    r.onerror = function(){ say('No se pudo leer el archivo.'); };
+    r.readAsText(f);
+  };
+  $('#restorePaste').onclick = function(){
+    var v = $('#paste').value.trim();
+    if (!v){ say('Pega antes el texto de la copia.'); return; }
+    restore(v);
+  };
+
+  render();
+})();
+</script>
+</body>
+</html>
