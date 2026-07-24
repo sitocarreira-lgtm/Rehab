@@ -1,20 +1,23 @@
 {
-  "name": "Rehabilitación Rodilla",
+  "name": "Rehab Rodilla",
   "short_name": "Rehab",
-  "start_url": "./index.html",
+  "description": "Seguimiento de la rehabilitación de rodilla: sesiones guiadas, ángulo de flexión y fármacos.",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#05665e",
-  "theme_color": "#0d9488",
+  "background_color": "#FBF9F5",
+  "theme_color": "#FBF9F5",
+  "lang": "es",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "icon-192-v4.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icon-512.png",
+      "src": "icon-512-v4.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
