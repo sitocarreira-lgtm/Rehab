@@ -289,58 +289,109 @@ const store = {
 ================================================================ */
 const EXERCISES = [
   {
-    id:"quad", name:"Isométricos de cuádriceps", short:"Isométricos",
-    sessions:3, series:3, reps:10,
-    tip:"Aprieta como si clavaras la rodilla en la cama.",
+    id:"iso_squat", name:"Isométrico 1/4 de sentadilla", short:"Iso 1/4",
+    sessions:1, series:3, reps:5,
+    tip:"Baja un cuarto y aguanta ahí quieto, sin bloquear la rodilla.",
     phases:[
-      {label:"CONTRAE", sub:"Aprieta el cuádriceps fuerte", secs:6, tone:"work"},
-      {label:"RELAJA", sub:"Suelta del todo", secs:4, tone:"rest"},
+      {label:"AGUANTA", sub:"Cuarto de sentadilla, firme", secs:30, tone:"work"},
+      {label:"DESCANSA", sub:"Sube y suelta", secs:20, tone:"rest"},
     ],
   },
   {
-    id:"slr", name:"Elevaciones de pierna recta", short:"Elevaciones",
-    sessions:3, series:3, reps:10,
-    tip:"Bloquea la rodilla ANTES de subir. Si cede, hoy solo isométricos.",
+    id:"iso_squat_disc", name:"Isométrico 1/4 en disco de equilibrio", short:"Iso 1/4 disco",
+    sessions:1, series:3, reps:5,
+    tip:"Sobre el disco. El equilibrio ya suma, no busques bajar más.",
     phases:[
-      {label:"APRIETA Y SUBE", sub:"Rodilla bloqueada, sube la pierna", secs:3, tone:"work"},
-      {label:"AGUANTA ARRIBA", sub:"Mantén la pierna recta", secs:3, tone:"work"},
-      {label:"BAJA DESPACIO", sub:"Controla la bajada", secs:3, tone:"work"},
-      {label:"DESCANSA", sub:"Suelta", secs:3, tone:"rest"},
+      {label:"AGUANTA", sub:"Cuarto de sentadilla en el disco", secs:20, tone:"work"},
+      {label:"DESCANSA", sub:"Sal del disco y suelta", secs:20, tone:"rest"},
     ],
   },
   {
-    id:"heel", name:"Deslizamiento de talón", short:"Deslizamientos",
-    sessions:2, series:3, reps:10,
-    tip:"Talón pegado a la cama. Tirantez sí, dolor agudo no.",
+    id:"lunge_disc", name:"Zancada con disco de equilibrio", short:"Zancada disco",
+    sessions:1, series:3, reps:15,
+    tip:"Pie adelantado en el disco. Baja con control, la rodilla estable.",
     phases:[
-      {label:"DOBLA", sub:"Desliza el talón hacia ti", secs:5, tone:"work"},
-      {label:"AGUANTA", sub:"En el punto de tirantez cómoda", secs:4, tone:"work"},
-      {label:"ESTIRA", sub:"Vuelve a extender despacio", secs:5, tone:"move"},
-      {label:"DESCANSA", sub:"Pierna relajada", secs:2, tone:"rest"},
+      {label:"BAJA", sub:"Zancada controlada", secs:3, tone:"work"},
+      {label:"SUBE", sub:"Vuelve sin dar tirones", secs:3, tone:"work"},
     ],
   },
   {
-    id:"calf", name:"Gemelo con goma", short:"Gemelo",
-    sessions:3, series:3, reps:20,
-    tip:"Tumbado o sentado, goma en la planta del pie. Rodilla estirada y cómoda.",
+    id:"lunge_iso_core", name:"Zancada isométrica en disco + core", short:"Zancada iso",
+    sessions:1, series:3, reps:5,
+    tip:"Mantén la zancada quieta en el disco y aprieta el abdomen todo el aguante.",
     phases:[
-      {label:"EMPUJA", sub:"Punta del pie lejos, contra la goma", secs:2, tone:"work"},
-      {label:"VUELVE", sub:"Deja que la goma te suba el pie, despacio", secs:2, tone:"move"},
+      {label:"AGUANTA", sub:"Zancada firme, core activo", secs:30, tone:"work"},
+      {label:"DESCANSA", sub:"Deshaz y suelta", secs:20, tone:"rest"},
     ],
   },
   {
-    id:"qsquat", name:"1/4 de sentadilla", short:"Sentadilla 1/4",
-    sessions:3, series:3, reps:20,
-    tip:"De pie, con apoyo delante. Baja solo un cuarto: la rodilla no pasa de la punta del pie.",
+    id:"calf_two", name:"Gemelo de pie (dos piernas)", short:"Gemelo 2p",
+    sessions:1, series:3, reps:20,
+    tip:"De puntillas con las dos. Carga un poco más en la izquierda cada serie.",
     phases:[
-      {label:"BAJA", sub:"Un cuarto, peso repartido en los dos pies", secs:2, tone:"work"},
-      {label:"SUBE", sub:"Estira sin bloquear de golpe", secs:2, tone:"work"},
+      {label:"SUBE", sub:"De puntillas, más peso en la izquierda", secs:2, tone:"work"},
+      {label:"BAJA", sub:"Talones al suelo", secs:2, tone:"work"},
+    ],
+  },
+  {
+    id:"calf_neg", name:"Gemelo con negativa a una pierna", short:"Gemelo neg.",
+    sessions:1, series:3, reps:20,
+    tip:"Subes con las dos, bajas solo con la izquierda. Cuando puedas, sube también a una.",
+    phases:[
+      {label:"SUBE CON DOS", sub:"De puntillas con las dos piernas", secs:2, tone:"work"},
+      {label:"BAJA CON LA IZQ.", sub:"Baja solo con la izquierda", secs:2, tone:"work"},
+    ],
+  },
+  {
+    id:"sliders", name:"Sliders con goma", short:"Sliders",
+    sessions:1, series:3, reps:40,
+    tip:"Desliza con la goma tensando. Rango cómodo, ritmo constante.",
+    phases:[
+      {label:"DESLIZA", sub:"Contra la goma", secs:3, tone:"work"},
+      {label:"VUELVE", sub:"Regreso rápido", secs:2, tone:"work"},
+    ],
+  },
+  {
+    id:"hamstring", name:"Femoral con goma", short:"Femoral",
+    sessions:1, series:3, reps:10,
+    tip:"Lleva el talón hacia el glúteo tensando la goma.",
+    phases:[
+      {label:"FLEXIONA", sub:"Talón hacia el glúteo", secs:3, tone:"work"},
+      {label:"ESTIRA", sub:"Vuelve despacio", secs:3, tone:"work"},
+    ],
+  },
+  {
+    id:"bridge_two", name:"Puente de glúteo (dos piernas)", short:"Puente 2p",
+    sessions:1, series:1, reps:20,
+    tip:"Serie de preparación. Sube la cadera apretando glúteos.",
+    phases:[
+      {label:"SUBE", sub:"Cadera arriba, aprieta glúteos", secs:3, tone:"work"},
+      {label:"BAJA", sub:"Baja con control", secs:3, tone:"work"},
+    ],
+  },
+  {
+    id:"bridge_left", name:"Puente de glúteo (pierna izquierda)", short:"Puente izq.",
+    sessions:1, series:3, reps:20,
+    tip:"Apoya solo la izquierda. La cadera no se cae hacia un lado.",
+    phases:[
+      {label:"SUBE", sub:"Empuja con la izquierda", secs:3, tone:"work"},
+      {label:"BAJA", sub:"Baja con control", secs:3, tone:"work"},
+    ],
+  },
+  {
+    id:"quad_mob", name:"Movilización: flexión en cuadrupedia", short:"Cuadrupedia",
+    sessions:1, series:3, reps:20,
+    tip:"A cuatro patas, lleva el culo hacia los talones ganando flexión.",
+    phases:[
+      {label:"FLEXIONA", sub:"Siéntate hacia los talones", secs:3, tone:"move"},
+      {label:"AGUANTA", sub:"En máxima flexión cómoda", secs:3, tone:"move"},
+      {label:"VUELVE", sub:"Regresa a cuadrupedia", secs:3, tone:"move"},
     ],
   },
 ];
 const REST_BETWEEN_SERIES = 30;
 const PREP_SECS = 5;
-const APP_VER = "v4";
+const APP_VER = "v5";
 
 /* ================================================================
    Estado

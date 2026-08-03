@@ -1,7 +1,7 @@
 /* Service worker · rehab-v4
    Cambia SIEMPRE el número de CACHE al subir una versión nueva:
    es lo que obliga al service worker instalado a renovarse. */
-const CACHE = 'rehab-v4';
+const CACHE = 'rehab-v5';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
