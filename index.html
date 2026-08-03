@@ -131,6 +131,7 @@ button{font-family:inherit;}
 .btn:active{transform:scale(.98);}
 .btn.ghost{background:var(--bone);color:var(--ink);border:1px solid var(--line);}
 .btn:disabled{opacity:.4;}
+.rswap{background:none;border:1px solid var(--line);color:var(--muted);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;cursor:pointer;}
 .filelabel{display:block;text-align:center;padding:30px 16px;border:2px dashed var(--line);border-radius:14px;color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;}
 .filelabel b{color:var(--pine);}
 #chartCanvas{width:100%;height:210px;display:block;}
@@ -251,7 +252,6 @@ button{font-family:inherit;}
   </div>
   <div class="sess-bottom">
     <button id="sessPause">❚❚ Pausa</button>
-    <button id="sessSkip" class="hidden">Saltar descanso ›</button>
   </div>
 </div>
 
@@ -289,7 +289,7 @@ const store = {
 ================================================================ */
 const EXERCISES = [
   {
-    id:"iso_squat", name:"Isométrico 1/4 de sentadilla", short:"Iso 1/4",
+    id:"iso_squat", day:"A", name:"Isométrico 1/4 de sentadilla", short:"Iso 1/4",
     sessions:1, series:3, reps:5,
     tip:"Baja un cuarto y aguanta ahí quieto, sin bloquear la rodilla.",
     phases:[
@@ -298,7 +298,7 @@ const EXERCISES = [
     ],
   },
   {
-    id:"iso_squat_disc", name:"Isométrico 1/4 en disco de equilibrio", short:"Iso 1/4 disco",
+    id:"iso_squat_disc", day:"B", name:"Isométrico 1/4 en disco de equilibrio", short:"Iso 1/4 disco",
     sessions:1, series:3, reps:5,
     tip:"Sobre el disco. El equilibrio ya suma, no busques bajar más.",
     phases:[
@@ -307,7 +307,7 @@ const EXERCISES = [
     ],
   },
   {
-    id:"lunge_disc", name:"Zancada con disco de equilibrio", short:"Zancada disco",
+    id:"lunge_disc", day:"A", name:"Zancada con disco de equilibrio", short:"Zancada disco",
     sessions:1, series:3, reps:15,
     tip:"Pie adelantado en el disco. Baja con control, la rodilla estable.",
     phases:[
@@ -316,7 +316,7 @@ const EXERCISES = [
     ],
   },
   {
-    id:"lunge_iso_core", name:"Zancada isométrica en disco + core", short:"Zancada iso",
+    id:"lunge_iso_core", day:"B", name:"Zancada isométrica en disco + core", short:"Zancada iso",
     sessions:1, series:3, reps:5,
     tip:"Mantén la zancada quieta en el disco y aprieta el abdomen todo el aguante.",
     phases:[
@@ -325,7 +325,7 @@ const EXERCISES = [
     ],
   },
   {
-    id:"calf_two", name:"Gemelo de pie (dos piernas)", short:"Gemelo 2p",
+    id:"calf_two", day:"A", name:"Gemelo de pie (dos piernas)", short:"Gemelo 2p",
     sessions:1, series:3, reps:20,
     tip:"De puntillas con las dos. Carga un poco más en la izquierda cada serie.",
     phases:[
@@ -334,7 +334,7 @@ const EXERCISES = [
     ],
   },
   {
-    id:"calf_neg", name:"Gemelo con negativa a una pierna", short:"Gemelo neg.",
+    id:"calf_neg", day:"B", name:"Gemelo con negativa a una pierna", short:"Gemelo neg.",
     sessions:1, series:3, reps:20,
     tip:"Subes con las dos, bajas solo con la izquierda. Cuando puedas, sube también a una.",
     phases:[
@@ -343,7 +343,7 @@ const EXERCISES = [
     ],
   },
   {
-    id:"sliders", name:"Sliders con goma", short:"Sliders",
+    id:"sliders", day:"A", name:"Sliders con goma", short:"Sliders",
     sessions:1, series:3, reps:40,
     tip:"Desliza con la goma tensando. Rango cómodo, ritmo constante.",
     phases:[
@@ -352,7 +352,7 @@ const EXERCISES = [
     ],
   },
   {
-    id:"hamstring", name:"Femoral con goma", short:"Femoral",
+    id:"hamstring", day:"B", name:"Femoral con goma", short:"Femoral",
     sessions:1, series:3, reps:10,
     tip:"Lleva el talón hacia el glúteo tensando la goma.",
     phases:[
@@ -361,7 +361,7 @@ const EXERCISES = [
     ],
   },
   {
-    id:"bridge_two", name:"Puente de glúteo (dos piernas)", short:"Puente 2p",
+    id:"bridge_two", day:"AB", name:"Puente de glúteo (dos piernas)", short:"Puente 2p",
     sessions:1, series:1, reps:20,
     tip:"Serie de preparación. Sube la cadera apretando glúteos.",
     phases:[
@@ -370,7 +370,7 @@ const EXERCISES = [
     ],
   },
   {
-    id:"bridge_left", name:"Puente de glúteo (pierna izquierda)", short:"Puente izq.",
+    id:"bridge_left", day:"AB", name:"Puente de glúteo (pierna izquierda)", short:"Puente izq.",
     sessions:1, series:3, reps:20,
     tip:"Apoya solo la izquierda. La cadera no se cae hacia un lado.",
     phases:[
@@ -379,7 +379,7 @@ const EXERCISES = [
     ],
   },
   {
-    id:"quad_mob", name:"Movilización: flexión en cuadrupedia", short:"Cuadrupedia",
+    id:"quad_mob", day:"AB", name:"Movilización: flexión en cuadrupedia", short:"Cuadrupedia",
     sessions:1, series:3, reps:20,
     tip:"A cuatro patas, lleva el culo hacia los talones ganando flexión.",
     phases:[
@@ -389,9 +389,8 @@ const EXERCISES = [
     ],
   },
 ];
-const REST_BETWEEN_SERIES = 30;
 const PREP_SECS = 5;
-const APP_VER = "v6";
+const APP_VER = "v9";
 
 /* ================================================================
    Estado
@@ -438,6 +437,7 @@ const fmtKey = (d)=>{
 };
 const nowHM = ()=>{ const d=new Date(); return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); };
 const todayKey = ()=>fmtKey(new Date());
+const shiftDay = (key, n)=>{ const d=new Date(key+"T12:00:00"); d.setDate(d.getDate()+n); return fmtKey(d); };
 const shortDate = (iso)=>{ const p=iso.split("-"); return p[2]+"/"+p[1]; };
 const weekNow = ()=>{
   if (!cfg.surgery) return 1;
@@ -504,6 +504,75 @@ function migrate(l){
 }
 
 /* ================================================================
+   Rutina A/B en días alternos
+================================================================ */
+// ejercicios de una rutina: los etiquetados con esa letra o con "AB"
+function exercisesFor(routine){
+  return EXERCISES.filter(e => e.day===routine || e.day==="AB");
+}
+// ¿está completa la rutina R en el registro de ese día?
+function routineComplete(rec, routine){
+  const list = exercisesFor(routine);
+  if (!list.length) return false;
+  return list.every(e=>{
+    const sess = sessOf(rec, e.id);
+    let full = 0;
+    for (let s=0;s<e.sessions;s++){ if (sess[s] && sess[s].series>=e.series) full++; }
+    return full >= e.sessions;
+  });
+}
+// ¿qué rutina se registró (aunque sea a medias) ese día? "A", "B" o null
+function routineOfDay(key){
+  // si hay elección guardada, manda ella (aunque aún no haya registro ese día)
+  if (cfg.routineChoice && cfg.routineChoice[key]) return cfg.routineChoice[key];
+  const rec = log[key]; if (!rec) return null;
+  // deducir por los ejercicios registrados
+  const hasA = exercisesFor("A").some(e=>e.day==="A" && sessOf(rec,e.id).some(Boolean));
+  const hasB = exercisesFor("B").some(e=>e.day==="B" && sessOf(rec,e.id).some(Boolean));
+  if (hasA && !hasB) return "A";
+  if (hasB && !hasA) return "B";
+  return null;
+}
+// último día (anterior a hoy) en que se COMPLETÓ una rutina, y cuál
+function lastCompleted(){
+  const keys = Object.keys(log).filter(k=>k<todayKey()).sort().reverse();
+  for (const k of keys){
+    for (const r of ["A","B"]){
+      if (routineComplete(log[k], r)) return { key:k, routine:r };
+    }
+  }
+  return null;
+}
+// ¿qué rutina toca hoy? Devuelve {routine, ask}
+//  - ask=true  → el día anterior quedó a medias o vacío: preguntar
+//  - ask=false → decidido por alternancia desde lo último completado
+function todaysRoutine(){
+  // ¿ya se eligió/registró hoy? entonces esa manda, sin preguntar
+  const hoy = routineOfDay(todayKey());
+  if (hoy) return { routine:hoy, ask:false, locked:true };
+
+  const yKey = shiftDay(todayKey(), -1);
+  const yRec = log[yKey];
+  const yComplete = yRec && (routineComplete(yRec,"A") || routineComplete(yRec,"B"));
+
+  const last = lastCompleted();
+  const nextByAlt = last ? (last.routine==="A" ? "B" : "A") : "A";
+
+  // ayer no se entrenó nada, o se dejó a medias → preguntar
+  if (!yRec || !yComplete) return { routine:nextByAlt, ask:true };
+  // ayer se completó → hoy el contrario, directo
+  return { routine:nextByAlt, ask:false };
+}
+function setRoutineChoice(routine){
+  cfg.routineChoice = cfg.routineChoice || {};
+  cfg.routineChoice[todayKey()] = routine;
+  activeRoutine = routine;
+  saveAll();
+  render();
+}
+let activeRoutine = null;   // rutina elegida/mostrada hoy en esta sesión de la app
+
+/* ================================================================
    Vistas
 ================================================================ */
 function render(){
@@ -519,23 +588,47 @@ function render(){
 /* ---------------- HOY ---------------- */
 function renderToday(){
   const rec = log[todayKey()] || {};
-  let html = '<div class="sect">Hoy · pulsa ▶ para una sesión guiada</div>';
-  for (const e of EXERCISES){
+  const decision = todaysRoutine();
+
+  // ¿hay que preguntar y aún no se ha elegido hoy? mostrar selector
+  if (decision.ask && !decision.locked && !activeRoutine){
+    const yKey = shiftDay(todayKey(), -1);
+    const motivo = !log[yKey] ? "Ayer no entrenaste." : "Ayer quedó a medias.";
+    let html = `<div class="sect">¿Qué toca hoy?</div>
+      <div class="card">
+        <div class="extip" style="margin-bottom:14px">${motivo} Elige la rutina de hoy:</div>
+        <button class="btn" data-routine="A" style="margin-bottom:10px">Rutina A</button>
+        <button class="btn ghost" data-routine="B">Rutina B</button>
+        <div class="hint" style="margin-top:12px">${routineSummary()}</div>
+      </div>`;
+    $("#view").innerHTML = html;
+    return;
+  }
+
+  const routine = activeRoutine || decision.routine;
+  activeRoutine = routine;
+  const list = exercisesFor(routine);
+
+  let html = `<div class="sect" style="display:flex;justify-content:space-between;align-items:center">
+      <span>Hoy · Rutina ${routine}</span>
+      <button class="rswap" id="swapRoutine">cambiar</button>
+    </div>`;
+  for (const e of list){
     const sess = sessOf(rec, e.id);
     html += `<div class="card">
       <div class="exhead"><span class="exname">${e.name}</span>
-      <span class="exdetail">${e.sessions}×/día · ${e.series} series · ${e.reps} reps</span></div>
+      <span class="exdetail">${e.series} series · ${e.reps} reps</span></div>
       <div class="extip">${e.tip}</div>`;
     for (let s=0; s<e.sessions; s++){
       const done = sess[s];
       html += `<div class="sessrow">
-        <button class="playbtn ${done?"done":""}" data-play="${e.id}" data-slot="${s}" aria-label="Sesión ${s+1}">
-          ${done
+        <button class="playbtn ${done && done.series>=e.series?"done":""}" data-play="${e.id}" data-slot="${s}" aria-label="Empezar serie">
+          ${done && done.series>=e.series
             ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
             : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'}
         </button>
         <div class="sessinfo">
-          <div class="sesslabel">Sesión ${s+1}
+          <div class="sesslabel">${done && done.series>=e.series ? "Completado" : "Series"}
             ${done && done.t ? `<span class="time tnum">${done.t} h</span>` : ""}
           </div>
           <div class="seriedots">`;
@@ -547,8 +640,13 @@ function renderToday(){
     }
     html += `</div>`;
   }
-  html += `<div class="hint">Toca las series (S1·S2·S3) para marcarlas o desmarcarlas a mano; la hora se apunta sola. El ▶ te guía la sesión entera.</div>`;
+  html += `<div class="hint">Cada ▶ te guía una serie. Al acabar vuelves aquí; dale otra vez para la siguiente. También puedes tocar S1·S2·S3 para marcar a mano.</div>`;
   $("#view").innerHTML = html;
+}
+function routineSummary(){
+  const a = exercisesFor("A").map(e=>e.short).join(", ");
+  const b = exercisesFor("B").map(e=>e.short).join(", ");
+  return `<b>A:</b> ${a}<br><b>B:</b> ${b}`;
 }
 
 /* toca una serie: marcar hasta ahí o desmarcar desde ahí */
@@ -574,7 +672,11 @@ function toggleSerie(exId, slot, idx){
 let sessState = null;
 function startSession(exId, slot){
   const ex = EXERCISES.find(e=>e.id===exId);
-  sessState = { ex, slot, serie:1, rep:1, phase:0, secs:PREP_SECS, paused:false, mode:"prep" };
+  // ¿cuántas series hay ya marcadas hoy en este ejercicio?
+  const arr = sessOf(log[todayKey()]||{}, ex.id);
+  const doneSeries = (arr[slot] && arr[slot].series) || 0;
+  if (doneSeries >= ex.series){ return; } // ya están las tres
+  sessState = { ex, slot, serie:doneSeries+1, rep:1, phase:0, secs:PREP_SECS, paused:false, mode:"prep" };
   $("#sess").classList.add("show");
   buzz(90);
   keepAwake();
@@ -611,14 +713,9 @@ function phasesForRep(ex, rep){
 function advanceSession(){
   const st = sessState, ex = st.ex;
   if (st.mode==="prep"){
-    // fin de la cuenta atrás de preparación → arranca la primera serie
-    st.mode="work"; st.serie=1; st.rep=1; st.phase=0; st.secs=ex.phases[0].secs;
+    // fin de la cuenta atrás de preparación → arranca la serie que toca
+    st.mode="work"; st.rep=1; st.phase=0; st.secs=ex.phases[0].secs;
     beep(980,0.16); buzz(220); updateSessUI(); return;
-  }
-  if (st.mode==="between"){
-    // fin del descanso entre series
-    st.mode="work"; st.serie++; st.rep=1; st.phase=0; st.secs=ex.phases[0].secs;
-    beep(980,0.16); buzz(200); updateSessUI(); return;
   }
   const ph = phasesForRep(ex, st.rep);
   if (st.phase+1 < ph.length){
@@ -631,11 +728,8 @@ function advanceSession(){
     st.rep++; st.phase=0; st.secs=ex.phases[0].secs;
     beep(980,0.16); buzz(180); updateSessUI(); return;
   }
-  if (st.serie < ex.series){
-    st.mode="between"; st.secs = REST_BETWEEN_SERIES;
-    beep(520,0.25,0.09); buzz(250); updateSessUI(); return;
-  }
-  finishSession();
+  // terminada esta serie → registrar y volver a Hoy
+  finishSeries();
 }
 function updateSessUI(){
   const st = sessState; if (!st) return;
@@ -646,43 +740,39 @@ function updateSessUI(){
     el.classList.add("prep");
     $("#sessPhase").textContent = "PREPARADOS";
     $("#sessSub").textContent = "Colócate para empezar";
-    $("#sessMeta").innerHTML = `Serie 1 / ${ex.series}`;
-    $("#sessSkip").classList.add("hidden");
+    $("#sessMeta").innerHTML = `Serie ${st.serie} / ${ex.series}`;
     $("#sessBar").style.width = ((PREP_SECS-st.secs)/PREP_SECS*100)+"%";
     $("#sessCount").textContent = st.secs;
     $("#sessPause").textContent = st.paused ? "▶ Continuar" : "❚❚ Pausa";
     return;
   }
-  if (st.mode==="between"){
-    el.classList.add("between");
-    $("#sessPhase").textContent = "DESCANSO";
-    $("#sessSub").textContent = "Entre series · respira";
-    $("#sessMeta").innerHTML = `Serie ${st.serie} / ${ex.series} hecha`;
-    $("#sessSkip").classList.remove("hidden");
-    $("#sessBar").style.width = ((REST_BETWEEN_SERIES-st.secs)/REST_BETWEEN_SERIES*100)+"%";
-  } else {
+  {
     const ph = phasesForRep(ex, st.rep)[st.phase];
     if (ph.tone==="rest") el.classList.add("rest");
     $("#sessPhase").textContent = ph.label;
     $("#sessSub").textContent = ph.sub;
     $("#sessMeta").innerHTML = `Serie ${st.serie}/${ex.series}<br>Rep ${st.rep}/${ex.reps}`;
-    $("#sessSkip").classList.add("hidden");
     $("#sessBar").style.width = ((ph.secs-st.secs)/ph.secs*100)+"%";
   }
   $("#sessCount").textContent = st.secs;
   $("#sessPause").textContent = st.paused ? "▶ Continuar" : "❚❚ Pausa";
 }
-function finishSession(){
+function finishSeries(){
   const st = sessState;
   clearInterval(sessTimer);
   const date = todayKey();
   log[date] = log[date] || {};
   const arr = (log[date][st.ex.id] || []).slice();
   while (arr.length <= st.slot) arr.push(null);
-  arr[st.slot] = { t: nowHM(), series: st.ex.series };
+  // registrar la serie recién hecha, sin pasar del total del ejercicio
+  const prev = (arr[st.slot] && arr[st.slot].series) || 0;
+  const nueva = Math.min(prev + 1, st.ex.series);
+  const t = (arr[st.slot] && arr[st.slot].t) ? arr[st.slot].t : nowHM();
+  arr[st.slot] = { t, series: nueva };
   log[date][st.ex.id] = arr;
   saveAll();
-  beep(1180,0.3,0.1); buzz(400);
+  const completo = nueva >= st.ex.series;
+  beep(completo?1180:900, completo?0.3:0.16, 0.1); buzz(completo?400:220);
   sessState = null;
   $("#sess").classList.remove("show");
   letSleep();
@@ -698,8 +788,11 @@ function exitSession(){
 /* ---------------- CALENDARIO ---------------- */
 function dayStats(key){
   const rec = log[key] || {};
+  // ¿qué rutina se hizo ese día? Si no se sabe, medir contra la lista completa (días antiguos)
+  const routine = routineOfDay(key);
+  const list = routine ? exercisesFor(routine) : EXERCISES;
   let done=0, total=0, perEx=[];
-  for (const e of EXERCISES){
+  for (const e of list){
     const sess = sessOf(rec, e.id);
     let d=0;
     for (let s=0;s<e.sessions;s++){ if (sess[s] && sess[s].series>=e.series) d++; else if (sess[s]) d+=sess[s].series/e.series; }
@@ -713,9 +806,9 @@ function dayStats(key){
   for (const id in rec){
     if (!currentIds.has(id) && Array.isArray(rec[id]) && rec[id].length){ hasRetired = true; break; }
   }
-  let state = done>=total ? "full" : done>0 ? "part" : "none";
+  let state = (total>0 && done>=total) ? "full" : done>0 ? "part" : "none";
   if (state==="none" && hasRetired) state = "part";
-  return { done, total, perEx, state };
+  return { done, total, perEx, state, routine };
 }
 function renderCal(){
   if (!calView){ const d=new Date(); calView={y:d.getFullYear(),m:d.getMonth()}; }
@@ -741,44 +834,40 @@ function renderCal(){
     grid += `<div class="${cls.join(" ")}" data-day="${key}">${d}${mini}</div>`;
   }
 
-  // detalle del día seleccionado
+  // detalle del día: SOLO lo que se hizo ese día (actual o retirado), en orden de rutina
   const selRec = log[calSel] || {};
   const selDate = new Date(calSel+"T00:00:00");
   const selLabel = selDate.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"});
   let detail = "";
+  const currentIds = new Set(EXERCISES.map(e=>e.id));
+  // primero los de la rutina actual que tengan sesión ese día
   for (const e of EXERCISES){
-    const sess = sessOf(selRec, e.id);
-    const fullCount = sess.filter(x=>x && x.series>=e.series).length;
-    let chips = "";
-    let any = false;
-    for (let s=0;s<e.sessions;s++){
-      const x = sess[s];
-      if (x){
-        any = true;
-        chips += `<span class="chip tnum">${x.t ? x.t+" h" : "Sesión "+(s+1)} · <b>${x.series}/${e.series}</b> series</span>`;
-      }
-    }
-    if (!any) chips = `<span class="chip off">Sin sesiones ese día</span>`;
+    const sess = sessOf(selRec, e.id).filter(Boolean);
+    if (!sess.length) continue;
+    const fullCount = sess.filter(x=>x.series>=e.series).length;
+    const chips = sess.map((x,s)=>
+      `<span class="chip tnum">${x.t ? x.t+" h" : "Sesión "+(s+1)} · <b>${x.series}/${e.series}</b> series</span>`
+    ).join("");
     detail += `<div class="dayrow">
       <div class="dayrow-top"><span class="dayrow-name">${e.short}</span>
       <span class="dayrow-count tnum">${fullCount}/${e.sessions} sesiones</span></div>
       <div class="chips">${chips}</div></div>`;
   }
-  // ejercicios de ese día que ya no están en la rutina actual: mostrarlos igual
-  const currentIds = new Set(EXERCISES.map(e=>e.id));
+  // luego los ejercicios retirados que se hicieron ese día
   for (const id in selRec){
     if (currentIds.has(id)) continue;
     const meta = exMeta(id);
-    const sess = Array.isArray(selRec[id]) ? selRec[id] : [];
+    const sess = (Array.isArray(selRec[id]) ? selRec[id] : []).filter(Boolean);
     if (!sess.length) continue;
     const chips = sess.map((x,s)=>
-      `<span class="chip tnum">${x && x.t ? x.t+" h" : "Sesión "+(s+1)} · <b>${(x&&x.series)||0}/${meta.series}</b> series</span>`
+      `<span class="chip tnum">${x.t ? x.t+" h" : "Sesión "+(s+1)} · <b>${x.series||0}/${meta.series}</b> series</span>`
     ).join("");
     detail += `<div class="dayrow">
       <div class="dayrow-top"><span class="dayrow-name">${meta.short}</span>
-      <span class="dayrow-count tnum">${sess.filter(x=>x && x.series>=meta.series).length} sesiones</span></div>
+      <span class="dayrow-count tnum">${sess.filter(x=>x.series>=meta.series).length} sesiones</span></div>
       <div class="chips">${chips}</div></div>`;
   }
+  if (!detail) detail = `<div class="dayrow"><span class="chip off">Sin sesiones ese día</span></div>`;
 
   // detalle de fármacos del día seleccionado
   const selMed = medLog[calSel] || {};
@@ -1448,6 +1537,15 @@ setInterval(()=>{
 document.addEventListener("click",(e)=>{
   const tabBtn = e.target.closest(".tab");
   if (tabBtn){ tab = tabBtn.dataset.tab; render(); return; }
+  const routineBtn = e.target.closest("[data-routine]");
+  if (routineBtn){ setRoutineChoice(routineBtn.dataset.routine); return; }
+  if (e.target.id==="swapRoutine"){
+    activeRoutine = (activeRoutine==="A") ? "B" : "A";
+    // si ya se había fijado elección hoy, actualizarla
+    if (cfg.routineChoice && cfg.routineChoice[todayKey()]) setRoutineChoice(activeRoutine);
+    else render();
+    return;
+  }
   const play = e.target.closest("[data-play]");
   if (play){ startSession(play.dataset.play, Number(play.dataset.slot)); return; }
   const serie = e.target.closest("[data-serie]");
@@ -1466,7 +1564,6 @@ document.addEventListener("click",(e)=>{
 });
 $("#sessExit").onclick = exitSession;
 $("#sessPause").onclick = ()=>{ if(sessState){ sessState.paused=!sessState.paused; beep(700,0.08); updateSessUI(); } };
-$("#sessSkip").onclick = ()=>{ if(sessState && sessState.mode==="between"){ sessState.secs=1; advanceSession(); } };
 window.addEventListener("resize",()=>{ if(tab==="angle" && angles.length) drawChart(); });
 
 /* ================================================================
