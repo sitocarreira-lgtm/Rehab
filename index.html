@@ -391,7 +391,7 @@ const EXERCISES = [
 ];
 const REST_BETWEEN_SERIES = 30;
 const PREP_SECS = 5;
-const APP_VER = "v5";
+const APP_VER = "v6";
 
 /* ================================================================
    Estado
@@ -415,6 +415,19 @@ let detectMsg = "";
 let poseDetector = null;
 
 const K = { log:"rehab:v3log", angles:"rehab:angles", cfg:"rehab:cfg", med:"rehab:medlog" };
+
+/* Ejercicios retirados de la rutina. Se conservan aquí solo para que el
+   Calendario muestre con su nombre completo las sesiones ya realizadas. */
+const RETIRED = {
+  quad:   { short:"Isométricos de cuádriceps", series:3 },
+  slr:    { short:"Elevaciones de pierna recta", series:3 },
+  heel:   { short:"Deslizamiento de talón", series:3 },
+  calf:   { short:"Gemelo con goma", series:3 },
+  qsquat: { short:"1/4 de sentadilla", series:3 },
+};
+function exMeta(id){
+  return EXERCISES.find(e=>e.id===id) || RETIRED[id] || { short:id, series:3 };
+}
 
 /* ================================================================
    Utilidades
@@ -694,7 +707,15 @@ function dayStats(key){
     total += e.sessions;
     perEx.push(sess.filter(x=>x && x.series>=e.series).length >= e.sessions);
   }
-  return { done, total, perEx, state: done>=total ? "full" : done>0 ? "part" : "none" };
+  // días antiguos con ejercicios ya retirados: que el día no salga vacío
+  const currentIds = new Set(EXERCISES.map(e=>e.id));
+  let hasRetired = false;
+  for (const id in rec){
+    if (!currentIds.has(id) && Array.isArray(rec[id]) && rec[id].length){ hasRetired = true; break; }
+  }
+  let state = done>=total ? "full" : done>0 ? "part" : "none";
+  if (state==="none" && hasRetired) state = "part";
+  return { done, total, perEx, state };
 }
 function renderCal(){
   if (!calView){ const d=new Date(); calView={y:d.getFullYear(),m:d.getMonth()}; }
@@ -741,6 +762,21 @@ function renderCal(){
     detail += `<div class="dayrow">
       <div class="dayrow-top"><span class="dayrow-name">${e.short}</span>
       <span class="dayrow-count tnum">${fullCount}/${e.sessions} sesiones</span></div>
+      <div class="chips">${chips}</div></div>`;
+  }
+  // ejercicios de ese día que ya no están en la rutina actual: mostrarlos igual
+  const currentIds = new Set(EXERCISES.map(e=>e.id));
+  for (const id in selRec){
+    if (currentIds.has(id)) continue;
+    const meta = exMeta(id);
+    const sess = Array.isArray(selRec[id]) ? selRec[id] : [];
+    if (!sess.length) continue;
+    const chips = sess.map((x,s)=>
+      `<span class="chip tnum">${x && x.t ? x.t+" h" : "Sesión "+(s+1)} · <b>${(x&&x.series)||0}/${meta.series}</b> series</span>`
+    ).join("");
+    detail += `<div class="dayrow">
+      <div class="dayrow-top"><span class="dayrow-name">${meta.short}</span>
+      <span class="dayrow-count tnum">${sess.filter(x=>x && x.series>=meta.series).length} sesiones</span></div>
       <div class="chips">${chips}</div></div>`;
   }
 
